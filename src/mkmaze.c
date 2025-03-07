@@ -637,54 +637,55 @@ fixup_special(void)
     }
 
     /* Still need to add some stuff to level file */
-    if (Is_medusa_level(&u.uz)) {
-        struct obj *otmp;
-        int tryct;
+    //if (Is_medusa_level(&u.uz)) {
+    //    struct obj *otmp;
+    //    int tryct;
 
-        croom = &svr.rooms[0]; /* the first room defined on the medusa level */
-        for (tryct = rnd(4); tryct; tryct--) {
-            x = somex(croom);
-            y = somey(croom);
-            if (goodpos(x, y, (struct monst *) 0, 0)) {
-                int tryct2 = 0;
+    //    croom = &svr.rooms[0]; /* the first room defined on the medusa level */
+    //    for (tryct = rnd(4); tryct; tryct--) {
+    //        x = somex(croom);
+    //        y = somey(croom);
+    //        if (goodpos(x, y, (struct monst *) 0, 0)) {
+    //            int tryct2 = 0;
 
-                otmp = mk_tt_object(STATUE, x, y);
-                while (++tryct2 < 100 && otmp
-                       && (poly_when_stoned(&mons[otmp->corpsenm])
-                                || pm_resistance(&mons[otmp->corpsenm],
-                                                 MR_STONE))) {
-                    /* set_corpsenm() handles weight too */
-                    set_corpsenm(otmp, rndmonnum());
-                }
-            }
-        }
+    //            otmp = mk_tt_object(STATUE, x, y);
+    //            while (++tryct2 < 100 && otmp
+    //                   && (poly_when_stoned(&mons[otmp->corpsenm])
+    //                            || pm_resistance(&mons[otmp->corpsenm],
+    //                                             MR_STONE))) {
+    //                /* set_corpsenm() handles weight too */
+    //                set_corpsenm(otmp, rndmonnum());
+    //            }
+    //        }
+    //    }
 
-        if (rn2(2))
-            otmp = mk_tt_object(STATUE, somex(croom), somey(croom));
-        else /* Medusa statues don't contain books */
-            otmp =
-                mkcorpstat(STATUE, (struct monst *) 0, (struct permonst *) 0,
-                           somex(croom), somey(croom), CORPSTAT_NONE);
-        if (otmp) {
-            tryct = 0;
-            while (++tryct < 100
-                   && (pm_resistance(&mons[otmp->corpsenm], MR_STONE)
-                       || poly_when_stoned(&mons[otmp->corpsenm]))) {
-                /* set_corpsenm() handles weight too */
-                set_corpsenm(otmp, rndmonnum());
-            }
-        }
-    } else if (Role_if(PM_CLERIC) && In_quest(&u.uz)) {
+    //    if (rn2(2))
+    //        otmp = mk_tt_object(STATUE, somex(croom), somey(croom));
+    //    else /* Medusa statues don't contain books */
+    //        otmp =
+    //            mkcorpstat(STATUE, (struct monst *) 0, (struct permonst *) 0,
+    //                       somex(croom), somey(croom), CORPSTAT_NONE);
+    //    if (otmp) {
+    //        tryct = 0;
+    //        while (++tryct < 100
+    //               && (pm_resistance(&mons[otmp->corpsenm], MR_STONE)
+    //                   || poly_when_stoned(&mons[otmp->corpsenm]))) {
+    //            /* set_corpsenm() handles weight too */
+    //            set_corpsenm(otmp, rndmonnum());
+    //        }
+    //    }
+    //} else 
+    if (Role_if(PM_CLERIC) && In_quest(&u.uz)) {
         /* less chance for undead corpses (lured from lower morgues) */
         svl.level.flags.graveyard = 1;
     } else if (Is_stronghold(&u.uz)) {
         svl.level.flags.graveyard = 1;
-    } else if (on_level(&u.uz, &baalzebub_level)) {
-        /* custom wallify the "beetle" potion of the level */
-        baalz_fixup();
-    } else if (u.uz.dnum == mines_dnum && gr.ransacked) {
-       stolen_booty();
-    }
+    //} else if (on_level(&u.uz, &baalzebub_level)) {
+    //    /* custom wallify the "beetle" potion of the level */
+    //    baalz_fixup();
+    } //else if (u.uz.dnum == mines_dnum && gr.ransacked) {
+     //  stolen_booty();
+   // }
 
     if ((sp = Is_special(&u.uz)) != 0 && sp->flags.town) /* Mine Town */
         svl.level.flags.has_town = 1;

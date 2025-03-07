@@ -2502,8 +2502,10 @@ extern const char *align_gname(aligntyp);
 extern const char *halu_gname(aligntyp);
 extern const char *align_gtitle(aligntyp);
 extern void altar_wrath(coordxy, coordxy);
+extern void gods_impatient(aligntyp, boolean);
+extern void play_the_choir();
 
-/* ### priest.c ### */
+    /* ### priest.c ### */
 
 extern int move_special(struct monst *, boolean, schar, boolean, boolean,
                         coordxy, coordxy, coordxy, coordxy) NONNULLARG1;

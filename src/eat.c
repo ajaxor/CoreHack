@@ -3164,8 +3164,15 @@ gethungry(void)
         && (carnivorous(gy.youmonst.data)
             || herbivorous(gy.youmonst.data)
             || metallivorous(gy.youmonst.data))
-        && !Slow_digestion)
+        && !Slow_digestion) {
         u.uhunger--; /* ordinary food consumption */
+
+        /* Extra hunger for maximum speed */
+        if (Very_fast && rn2(2))
+            u.uhunger--;
+    }
+        
+
 
     /*
      * 3.7:  trigger is randomized instead of (moves % N).  Makes

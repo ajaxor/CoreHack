@@ -866,6 +866,7 @@ mksobj_init(struct obj **obj, boolean artif)
     int mndx, tryct;
     struct obj *otmp = *obj;
     char let = objects[otmp->otyp].oc_class;
+    int artifact_chance = 20;
 
     switch (let) {
     case WEAPON_CLASS:
@@ -880,12 +881,6 @@ mksobj_init(struct obj **obj, boolean artif)
             blessorcurse(otmp, 10);
         if (is_poisonable(otmp) && !rn2(100))
             otmp->opoisoned = 1;
-
-        if (artif && !rn2(20 + (10 * nartifact_exist()))) {
-            /* mk_artifact() with otmp and A_NONE will never return NULL */
-            otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
-            *obj = otmp;
-        }
         break;
     case FOOD_CLASS:
         otmp->oeaten = 0;
@@ -977,6 +972,8 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->quan = 2L;
         else
             otmp->quan = 1L;
+
+        artifact_chance = 40;
         break;
     case TOOL_CLASS:
         switch (otmp->otyp) {
@@ -1059,7 +1056,9 @@ mksobj_init(struct obj **obj, boolean artif)
                         || otmp->otyp == AMULET_OF_RESTFUL_SLEEP)) {
             curse(otmp);
         } else
-            blessorcurse(otmp, 10);
+            blessorcurse(otmp, 10);        
+        
+        artifact_chance = 40;
         break;
     case VENOM_CLASS:
     case CHAIN_CLASS:
@@ -1089,11 +1088,9 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->spe = rne(3);
         } else
             blessorcurse(otmp, 10);
-        if (artif && !rn2(40 + (10 * nartifact_exist()))) {
-            /* mk_artifact() with otmp and A_NONE will never return NULL */
-            otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
-            *obj = otmp;
-        }
+
+        artifact_chance = 30;
+
         /* simulate lacquered armor for samurai */
         if (Role_if(PM_SAMURAI) && otmp->otyp == SPLINT_MAIL
             && (svm.moves <= 1 || In_quest(&u.uz))) {
@@ -1108,7 +1105,7 @@ mksobj_init(struct obj **obj, boolean artif)
         break;
     case WAND_CLASS:
         if (otmp->otyp == WAN_WISHING)
-            otmp->spe = rnd(3);
+            otmp->spe = 1;
         else
             otmp->spe = rn1(5,
                             (objects[otmp->otyp].oc_dir == NODIR) ? 11 : 4);
@@ -1157,6 +1154,12 @@ mksobj_init(struct obj **obj, boolean artif)
         panic("mksobj tried to make type %d, class %d.",
               (int) otmp->otyp, (int) objects[otmp->otyp].oc_class);
         /*NOTREACHED*/
+    }    
+
+    if (artif && !rn2(artifact_chance + (2 * nartifact_exist()))) {
+        /* mk_artifact() with otmp and A_NONE will never return NULL */
+        otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
+        *obj = otmp;
     }
 
     mkobj_erosions(otmp);

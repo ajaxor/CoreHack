@@ -435,9 +435,9 @@ container_impact_dmg(
 
         otmp2 = otmp->nobj;
         if (objects[otmp->otyp].oc_material == GLASS
-            && otmp->oclass != GEM_CLASS && !obj_resists(otmp, 33, 100)) {
+            && otmp->oclass != GEM_CLASS && !obj_resists(otmp, 80, 100)) {
             result = "shatter";
-        } else if (otmp->otyp == EGG && !rn2(3)) {
+        } else if (otmp->otyp == EGG) {
             result = "cracking";
         }
         if (result) {
@@ -652,15 +652,15 @@ really_kick_object(coordxy x, coordxy y)
 
         if (range < 2)
             pline("THUD!");
-        container_impact_dmg(gk.kickedobj, x, y);
+        if (!martial() || !gk.kickedobj->olocked) {
+            container_impact_dmg(gk.kickedobj, x, y);
+        }
         if (gk.kickedobj->olocked) {
-            if (!rn2(5) || (martial() && !rn2(2))) {
-                You("break open the lock!");
-                breakchestlock(gk.kickedobj, FALSE);
-                if (otrp)
-                    (void) chest_trap(gk.kickedobj, LEG, FALSE);
-                return 1;
-            }
+            You("break open the lock!");
+            breakchestlock(gk.kickedobj, FALSE);
+            if (otrp)
+                (void) chest_trap(gk.kickedobj, LEG, FALSE);
+            return 1;
         } else {
             if (!rn2(3) || (martial() && !rn2(2))) {
                 pline_The("lid slams open, then falls shut.");

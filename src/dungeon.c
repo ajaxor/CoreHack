@@ -721,7 +721,7 @@ static struct level_map {
                   { "fire", &fire_level },
                   { "juiblex", &juiblex_level },
                   { "knox", &knox_level },
-                  { "medusa", &medusa_level },
+                  //{ "medusa", &medusa_level },
                   { "oracle", &oracle_level },
                   { "orcus", &orcus_level },
                   { "rogue", &rogue_level },
@@ -1159,15 +1159,15 @@ fixup_level_locations(void)
                     insert_branch(br, TRUE);
                 }
             }
+        } else {
+            //lev_map->lev_spec->dnum = -999;
+            //lev_map->lev_spec->dlevel = -999;
         }
     }
     /*
      *  I hate hardwiring these names. :-(
      */
     quest_dnum = dname_to_dnum("The Quest");
-    sokoban_dnum = dname_to_dnum("Sokoban");
-    mines_dnum = dname_to_dnum("The Gnomish Mines");
-    tower_dnum = dname_to_dnum("Vlad's Tower");
     tutorial_dnum = dname_to_dnum("The Tutorial");
 
     /* one special fixup for dummy surface level */
@@ -1528,8 +1528,13 @@ prev_level(boolean at_stairs)
         /* Taking an up dungeon branch. */
         /* KMH -- Upwards branches are okay if not level 1 */
         /* (Just make sure it doesn't go above depth 1) */
-        if (!u.uz.dnum && u.uz.dlevel == 1 && !u.uhave.amulet)
-            done(ESCAPED);
+        if (!u.uz.dnum && u.uz.dlevel == 1) {
+            if (u.uhave.amulet) {
+                done(ASCENDED);
+            } else {
+                done(ESCAPED);
+            }
+        }
         else {
             newlevel.dnum = stway->tolev.dnum;
             newlevel.dlevel = stway->tolev.dlevel;
@@ -1825,7 +1830,8 @@ In_quest(d_level *lev)
 boolean
 In_mines(d_level *lev)
 {
-    return (boolean) (lev->dnum == mines_dnum);
+    return FALSE;
+     //(boolean)(lev->dnum == mines_dnum);
 }
 
 /*
@@ -1876,35 +1882,37 @@ at_dgn_entrance(const char *s)
 boolean
 In_V_tower(d_level *lev)
 {
-    return (boolean) (lev->dnum == tower_dnum);
+    return FALSE;//(boolean) (lev->dnum == tower_dnum);
 }
 
 /* is `lev' a level containing the Wizard's tower? */
 boolean
 On_W_tower_level(d_level *lev)
 {
-    return (boolean) (Is_wiz1_level(lev)
-                      || Is_wiz2_level(lev)
-                      || Is_wiz3_level(lev));
+    return FALSE;
+    //(boolean)(Is_wiz1_level(lev)
+      //                || Is_wiz2_level(lev)
+        //              || Is_wiz3_level(lev));
 }
 
 /* is <x,y> of `lev' inside the Wizard's tower? */
 boolean
 In_W_tower(coordxy x, coordxy y, d_level *lev)
 {
-    if (!On_W_tower_level(lev))
-        return FALSE;
-    if (!svd.dndest.nlx) {
-        impossible("No boundary for Wizard's Tower?");
-        return FALSE;
-    }
-    /*
-     * Both of the exclusion regions for arriving via level teleport
-     * (from above or below) define the tower's boundary.
-     *  assert( svu.updest.nIJ == svd.dndest.nIJ for I={l|h},J={x|y} );
-     */
-    return (boolean) within_bounded_area(x, y, svd.dndest.nlx, svd.dndest.nly,
-                                         svd.dndest.nhx, svd.dndest.nhy);
+    return FALSE;
+    //if (!On_W_tower_level(lev))
+    //    return FALSE;
+    //if (!svd.dndest.nlx) {
+    //    impossible("No boundary for Wizard's Tower?");
+    //    return FALSE;
+    //}
+    ///*
+    // * Both of the exclusion regions for arriving via level teleport
+    // * (from above or below) define the tower's boundary.
+    // *  assert( svu.updest.nIJ == svd.dndest.nIJ for I={l|h},J={x|y} );
+    // */
+    //return (boolean) within_bounded_area(x, y, svd.dndest.nlx, svd.dndest.nly,
+    //                                     svd.dndest.nhx, svd.dndest.nhy);
 }
 
 /* are you in one of the Hell levels? */
@@ -1998,9 +2006,7 @@ level_difficulty(void)
 {
     xint16 res;
 
-    if (In_endgame(&u.uz)) {
-        res = depth(&sanctum_level) + u.ulevel / 2;
-    } else if (u.uhave.amulet) {
+    if (u.uhave.amulet) {
         res = deepest_lev_reached(FALSE);
     } else {
         res = depth(&u.uz);
@@ -2055,11 +2061,11 @@ level_difficulty(void)
 
 /* within same branch, or else main dungeon <-> gehennom */
 #define dlev_in_current_branch(dlev) \
-    (dlev.dnum == u.uz.dnum                     \
-     || (u.uz.dnum == valley_level.dnum         \
-         && dlev.dnum == medusa_level.dnum)     \
-     || (u.uz.dnum == medusa_level.dnum         \
-         && dlev.dnum == valley_level.dnum))
+    (dlev.dnum == u.uz.dnum)                     \
+     //|| (u.uz.dnum == valley_level.dnum         \
+     //    && dlev.dnum == medusa_level.dnum)     \
+     //|| (u.uz.dnum == medusa_level.dnum         \
+     //    && dlev.dnum == valley_level.dnum))
 
 /* Take one word and try to match it to a level.
  * Recognized levels are as shown by print_dungeon().

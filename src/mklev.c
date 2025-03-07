@@ -881,8 +881,8 @@ fill_ordinary_room(
        while a monster was on the stairs. Conclusion:
        we have to check for monsters on the stairs anyway. */
 
-    if ((u.uhave.amulet || !rn2(3)) && somexyspace(croom, &pos)) {
-        tmonst = makemon((struct permonst *) 0, pos.x, pos.y, MM_NOGRP);
+    if ((u.uhave.amulet || rn2(2)) && somexyspace(croom, &pos)) {
+        tmonst = makemon((struct permonst *) 0, pos.x, pos.y, NO_MM_FLAGS);
         if (tmonst && tmonst->data == &mons[PM_GIANT_SPIDER]
             && !occupied(pos.x, pos.y))
             (void) maketrap(pos.x, pos.y, WEB);
@@ -1113,7 +1113,7 @@ makelevel(void)
     s_level *slev;
     int i;
 
-    if (wiz1_level.dlevel == 0) {
+    if (oracle_level.dlevel == 0) {
         impossible("makelevel() called when dungeon not yet initialized.");
         init_dungeons();
     }
@@ -1139,11 +1139,11 @@ makelevel(void)
         Strcat(fillname,
                 (u.uz.dlevel < loc_lev->dlevel.dlevel) ? "a" : "b");
         makemaz(fillname);
-    } else if (In_hell(&u.uz)
+    } /* else if (In_hell(&u.uz)
                 || (rn2(5) && u.uz.dnum == medusa_level.dnum
                     && depth(&u.uz) > depth(&medusa_level))) {
         makemaz("");
-    } else {
+    }*/ else {
         /* otherwise, fall through - it's a "regular" level. */
         int u_depth = depth(&u.uz);
 
@@ -1182,7 +1182,7 @@ makelevel(void)
                 ++room_threshold;
                 svr.rooms[svn.nroom - 1].needfill = FILL_NORMAL;
                 fill_special_room(&svr.rooms[svn.nroom - 1]);
-                mk_knox_portal(gv.vault_x + w, gv.vault_y + h);
+                //mk_knox_portal(gv.vault_x + w, gv.vault_y + h);  # fort level is removed so this crashes
                 if (!svl.level.flags.noteleport && !rn2(3))
                     makevtele();
             } else if (rnd_rect() && create_vault()) {
@@ -1200,7 +1200,7 @@ makelevel(void)
            this step only sets the room's rtype - it doesn't fill it yet. */
         if (wizard && nh_getenv("SHOPTYPE"))
             do_mkroom(SHOPBASE);
-        else if (u_depth > 1 && u_depth < depth(&medusa_level)
+        else if (u_depth > 1 // && u_depth < depth(&medusa_level)
                  && svn.nroom >= room_threshold && rn2(u_depth) < 3)
             do_mkroom(SHOPBASE);
         else if (u_depth > 4 && !rn2(6))
@@ -1414,6 +1414,11 @@ level_finalize_topology(void)
        entered; svr.rooms[].orig_rtype always retains original rtype value */
     for (ridx = 0; ridx < SIZE(svr.rooms); ridx++)
         svr.rooms[ridx].orig_rtype = svr.rooms[ridx].rtype;
+
+    /* Disable random monster generation after level creation */
+    if (!u.uhave.amulet) {
+	    svl.level.flags.rndmongen = 0;
+		}
 }
 
 void
@@ -2479,7 +2484,7 @@ mk_knox_portal(coordxy x, coordxy y)
     if (!(u.uz.dnum == oracle_level.dnum      /* in main dungeon */
           && !at_dgn_entrance("The Quest")    /* but not Quest's entry */
           && (u_depth = depth(&u.uz)) > 10    /* beneath 10 */
-          && u_depth < depth(&medusa_level))) /* and above Medusa */
+         ))// && u_depth < depth(&medusa_level))) /* and above Medusa */
         return;
 
     /* Adjust source to be current level and re-insert branch. */

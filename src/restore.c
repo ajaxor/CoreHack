@@ -619,7 +619,7 @@ restgamestate(NHFILE *nhfp)
         /* wiz1_level.dlevel is used by mklev.c to see if lots of stuff is
          * uninitialized, so we only have to set it and not the other stuff.
          */
-        wiz1_level.dlevel = 0;
+        oracle_level.dlevel = 0;
         u.uz.dnum = 0;
         u.uz.dlevel = 1;
         /* revert to pre-restore option settings */

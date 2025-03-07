@@ -335,14 +335,14 @@ curses_init_nhcolors(void)
     /* otherwise assume the terminal has least 16 different colors */
     /* these map to the NetHack CLR_ defines */
     static const int fg_clr[16] = {
-        COLOR_BLACK, COLOR_RED, COLOR_GREEN, COLOR_YELLOW,
-        COLOR_BLUE,  COLOR_MAGENTA, COLOR_CYAN, COLOR_WHITE,
-        -1, COLOR_RED + 8, COLOR_GREEN + 8, COLOR_YELLOW + 8,
-        COLOR_BLUE + 8, COLOR_MAGENTA + 8, COLOR_CYAN + 8, COLOR_WHITE + 8
+        COLOR_BLACK, COLOR_BLUE, COLOR_GREEN, COLOR_CYAN,
+        COLOR_RED,  COLOR_MAGENTA, COLOR_YELLOW, COLOR_WHITE,
+        -1, COLOR_BLUE + 8, COLOR_GREEN + 8, COLOR_CYAN + 8,
+        COLOR_RED + 8, COLOR_MAGENTA + 8, COLOR_YELLOW + 8, COLOR_WHITE + 8
     };
     static const int bg_clr[8] = {
-        -1, COLOR_RED, COLOR_GREEN, COLOR_YELLOW,
-        COLOR_BLUE, COLOR_MAGENTA, COLOR_CYAN, COLOR_WHITE
+        -1, COLOR_BLUE, COLOR_GREEN, COLOR_CYAN,
+        COLOR_RED, COLOR_MAGENTA, COLOR_YELLOW, COLOR_WHITE
     };
     int bg, nhclr;
     int maxc = (COLORS >= 16) ? 16 : 8;

@@ -1362,8 +1362,8 @@ level_tele(void)
            mainly used to distinguish "can't get there from here"
            vs "from anywhere" rather than to control destination */
         d_level *qbranch = In_quest(&u.uz) ? &qstart_level
-                          : In_mines(&u.uz) ? &mineend_level
-                            : &sanctum_level;
+                          //: In_mines(&u.uz) ? &mineend_level
+                            : &stronghold_level;
         int deepest = svd.dungeons[qbranch->dnum].depth_start
                       + dunlevs_in_dungeon(qbranch) - 1;
 
@@ -1968,9 +1968,7 @@ mlevel_tele_trap(
         int migrate_typ = MIGR_RANDOM;
 
         if (is_hole(tt)) {
-            if (Is_stronghold(&u.uz)) {
-                assign_level(&tolevel, &valley_level);
-            } else if (Is_botlevel(&u.uz)) {
+            if (Is_botlevel(&u.uz)) {
                 if (in_sight && trap->tseen)
                     pline_mon(mtmp, "%s avoids the %s.",
                               Monnam(mtmp),

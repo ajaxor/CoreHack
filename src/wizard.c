@@ -86,8 +86,23 @@ amulet(void)
         }
     }
 
-    if (!svc.context.no_of_wizards)
+    if (!svc.context.no_of_wizards) {
+        if (!rn2(40)) {
+            /* Create the Wizard */
+            mtmp = makemon(&mons[PM_WIZARD_OF_YENDOR], u.ux, u.uy, MM_NOWAIT);
+            if (mtmp) {
+                mtmp->msleeping = 0;
+                mtmp->mtame = 0;
+                mtmp->mpeaceful = 0;
+                set_malign(mtmp);
+                svc.context.no_of_wizards++; /* Increment wizard count */
+                if (!m_next2u(mtmp))
+                    You("sense the presence of evil.");
+            }
+        }
         return;
+    }
+
     /* find Wizard, and wake him if necessary */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))

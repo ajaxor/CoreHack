@@ -216,14 +216,7 @@ stairs_description(
         Sprintf(outbuf, "%s%s %s %s",
                 !u.uhave.amulet ? "" : "branch ",
                 stairs, updown,
-                !u.uhave.amulet ? "out of the dungeon"
-                /* minimize our expectations about what comes next */
-                : (on_level(&tolev, &earth_level)
-                   || on_level(&tolev, &air_level)
-                   || on_level(&tolev, &fire_level)
-                   || on_level(&tolev, &water_level))
-                  ? "to the Elemental Planes"
-                  : "to the end game");
+                !u.uhave.amulet ? "out of the dungeon" :  "to the end game");
     } else {
         /* known branch stairs; tacking on destination level is too verbose */
         Sprintf(outbuf, "branch %s %s to %s",

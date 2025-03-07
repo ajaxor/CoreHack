@@ -1835,9 +1835,7 @@ wiz_migrate_mons(void)
 #endif
     d_level tolevel;
 
-    if (Is_stronghold(&u.uz))
-        assign_level(&tolevel, &valley_level);
-    else if (!Is_botlevel(&u.uz))
+    if (!Is_botlevel(&u.uz))
         get_level(&tolevel, depth(&u.uz) + 1);
     else
         tolevel.dnum = 0, tolevel.dlevel = 0;

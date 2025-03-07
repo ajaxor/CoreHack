@@ -13,13 +13,20 @@ staticfn int enermod(int);
 long
 newuexp(int lev)
 {
-    if (lev < 1) /* for newuexp(u.ulevel - 1) when u.ulevel is 1 */
-        return 0L;
-    if (lev < 10)
-        return (10L * (1L << lev));
-    if (lev < 20)
-        return (10000L * (1L << (lev - 10)));
-    return (10000000L * ((long) (lev - 19)));
+    long xp_total = 0L;
+
+    if (lev < 1) {
+        xp_total = 0L;
+    } else if (lev < 10) {
+        xp_total = (10L * (1L << lev));
+    } else if (lev < 20) {
+        xp_total = (10000L * (1L << (lev - 10)));
+    } else {
+        xp_total = (10000000L * ((long) (lev - 19)));
+    }
+
+    xp_total = (long)( (float)xp_total * 0.65f );
+    return xp_total;
 }
 
 staticfn int

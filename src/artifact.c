@@ -170,7 +170,10 @@ mk_artifact(
     for (m = 1, a = &artilist[m]; a->otyp; a++, m++) {
         if (artiexist[m].exists)
             continue;
-        if ((a->spfx & SPFX_NOGEN) || unique)
+        if ( (a->spfx & SPFX_NOGEN)
+            && Role_if(a->role) )
+            continue;
+        if (unique)
             continue;
         if (a->gift_value > max_giftvalue && !Role_if(a->role))
             continue;

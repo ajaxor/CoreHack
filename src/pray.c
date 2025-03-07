@@ -1163,7 +1163,7 @@ pleased(aligntyp g_align)
        fixed or there were no troubles to begin with; hallucination
        won't be in effect so special handling for it is superfluous */
     if (pat_on_head)
-        switch (rn2((Luck + 6) >> 1)) {
+        switch (rn2((Luck + 8) >> 1)) {
         case 0:
             break;
         case 1:
@@ -1441,6 +1441,64 @@ gods_upset(aligntyp g_align)
     angrygods(g_align);
 }
 
+/* The g_align god is impatient with you. 
+   (like upset but with limits)          */
+void
+gods_impatient(aligntyp g_align, boolean warning)
+{
+    if (g_align != u.ualign.type)
+        return;
+
+    if (warning) {
+        if (u.retreat_warned) {
+            pline("The air grows heavy with divine disapproval.");
+        } else {
+            godvoice(g_align, (char *) 0);
+            SetVoice((struct monst *) 0, 0, 80, voice_deity);
+            pline("\"Why dost thou delay?\"");
+            u.retreat_warned = TRUE;
+        }
+    } else if (u.ugangr < 5
+            && !rn2(3)) {
+        u.ugangr++;
+        angrygods(g_align);
+    } else {
+        godvoice(g_align, (char *) 0);
+        SetVoice((struct monst *) 0, 0, 80, voice_deity);
+        switch (rn2(7)) {
+        case 0:
+            pline("\"Thou tests my patience, %s.\"",
+                  gy.youmonst.data->mlet == S_HUMAN ? "mortal" : "creature");
+            break;
+
+        case 1:
+            pline("\"I grow weary of thy directionless wandering.\"");
+            break;
+
+        case 2:
+            pline("\"Dost thou question my guidance?\"");
+            break;
+
+        case 3:
+            pline("\"The path I set before thee grows cold with neglect.\"");
+            break;
+
+        case 4:
+            pline("\"Thy quest awaits completion while thou treads in circles.\"");
+            break;
+
+        case 5:
+            pline("\"Forward, my champion, or art thou unworthy of my blessing?\"");
+            break;
+
+        case 6:
+        default:
+            pline("\"Forward lies thy destiny, not behind.\"");
+            break;
+        }
+    }
+}
+
 staticfn void
 consume_offering(struct obj *otmp)
 {
@@ -1570,21 +1628,26 @@ offer_real_amulet(struct obj *otmp, aligntyp altaralign)
         done(ESCAPED);
         /*NOTREACHED*/
     } else {
-        /* You've won the game!  Feedback-wise, it's a bit of a let down. */
-        u.uevent.ascended = 1;
-        adjalign(10);
-        pline("An invisible choir sings, and you are bathed in radiance...");
-        godvoice(altaralign, "Mortal, thou hast done well!");
-        display_nhwindow(WIN_MESSAGE, FALSE);
-        SetVoice((struct monst *) 0, 0, 80, voice_deity);
-        verbalize(
-          "In return for thy service, I grant thee the gift of Immortality!");
-        You("ascend to the status of Demigod%s...",
-            flags.female ? "dess" : "");
+        play_the_choir();
         done(ASCENDED);
         /*NOTREACHED*/
     }
     /*NOTREACHED*/
+}
+
+void
+play_the_choir()
+{
+    /* You've won the game!  Feedback-wise, it's a bit of a let down. */
+    u.uevent.ascended = 1;
+    adjalign(10);
+    pline("An invisible choir sings, and you are bathed in radiance...");
+    godvoice(u.ualign.type, "Mortal, thou hast done well!");
+    display_nhwindow(WIN_MESSAGE, FALSE);
+    SetVoice((struct monst *) 0, 0, 80, voice_deity);
+    verbalize(
+        "In return for thy service, I grant thee the gift of Immortality!");
+    You("ascend to the status of Demigod%s...", flags.female ? "dess" : "");
 }
 
 staticfn void
@@ -1788,7 +1851,7 @@ bestow_artifact(uchar max_giftvalue)
         if (wizard)
             do_bestow = y_n("Gift an artifact?") == 'y';
         else
-            do_bestow = !rn2(6 + (2 * u.ugifts * nartifacts));
+            do_bestow = !rn2(2 + (u.ugifts * u.ugifts));
     }
 
     if (do_bestow) {
@@ -1841,7 +1904,7 @@ sacrifice_value(struct obj *otmp)
 
     if (otmp->corpsenm == PM_ACID_BLOB
         || (svm.moves <= peek_at_iced_corpse_age(otmp) + 50)) {
-        value = mons[otmp->corpsenm].difficulty + 1;
+        value = mons[otmp->corpsenm].difficulty * 2 + 1;
         if (otmp->oeaten)
             value = eaten_stat(value, otmp);
     }

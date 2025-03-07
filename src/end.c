@@ -1052,6 +1052,10 @@ done(int how)
             return;
     }
 
+    if (how == ASCENDED) {
+        play_the_choir();
+    }
+
     if (how == ASCENDED || (!svk.killer.name[0] && how == GENOCIDED))
         svk.killer.format = NO_KILLER_PREFIX;
     /* Avoid killed by "a" burning or "a" starvation */

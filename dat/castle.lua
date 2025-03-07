@@ -13,9 +13,6 @@
 --
 -- Note : If you don't play the right tune, you get indications like in the
 --	 MasterMind game...
---
--- To motivate the player : there are 4 storerooms (armors, weapons, food and
--- gems) and a wand of wishing in one of the 4 towers...
 
 des.level_init({ style="mazegrid", bg ="-" });
 
@@ -54,7 +51,7 @@ place:set(58,14);
 local monster = { "L", "N", "E", "H", "M", "O", "R", "T", "X", "Z" }
 shuffle(monster)
 
-des.teleport_region({ region = {01,00,10,20}, region_islev=1, exclude={1,1,61,15}, dir="down" })
+-- des.teleport_region({ region = {01,00,10,20}, region_islev=1, exclude={1,1,61,15}, dir="down" })
 des.teleport_region({ region = {69,00,79,20}, region_islev=1, exclude={1,1,61,15}, dir="up" })
 des.levregion({ region = {01,00,10,20}, region_islev=1, exclude={0,0,62,16}, type="stair-up" })
 des.feature("fountain", 10,08)
@@ -139,11 +136,11 @@ des.object(object[4],52,11)
 des.object(object[4],53,11)
 des.object(object[4],54,11)
 des.object(object[4],55,11)
--- THE WAND OF WISHING in 1 of the 4 towers
+-- THE REAL AMULET OF YENDOR in 1 of the 4 towers
 local loc = place:rndcoord(1);
 des.object({ id = "chest", trapped = 0, locked = 1, coord = loc ,
              contents = function()
-                des.object("wishing");
+                des.object("Amulet of Yendor");
              end
 });
 -- Prevent monsters from eating it.  (@'s never eat objects)
@@ -152,11 +149,11 @@ des.object({ id = "scroll of scare monster", coord = loc, buc="cursed" })
 -- The treasure of the lord
 des.object("chest",37,08)
 -- Traps
-des.trap("trap door",40,08)
-des.trap("trap door",44,08)
-des.trap("trap door",48,08)
-des.trap("trap door",52,08)
-des.trap("trap door",55,08)
+des.trap("spiked pit",40,08)
+des.trap("spiked pit",44,08)
+des.trap("spiked pit",48,08)
+des.trap("spiked pit",52,08)
+des.trap("spiked pit",55,08)
 -- Soldiers guarding the entry hall
 des.monster("soldier",08,06)
 des.monster("soldier",09,05)
@@ -243,9 +240,33 @@ des.region(selection.area(02,02,06,03),"lit")
 des.region(selection.area(56,02,60,03),"lit")
 des.region(selection.area(02,13,06,14),"lit")
 des.region(selection.area(56,13,60,14),"lit")
---   Barracks
-des.region({ region={16,05, 25,06},lit=1,type="barracks", filled=1 })
-des.region({ region={16,10, 25,11},lit=1,type="barracks", filled=1 })
+--   Barracks replaced with random monsters
+des.region(selection.area(16,05,25,06),"lit")
+des.region(selection.area(16,10,25,11),"lit")
+
+-- Add random monsters in former barracks areas
+local barracks_monsters = { "minotaur", "jabberwock", "umber hulk", 
+                           "vampire lord", "master mind flayer", "disenchanter", 
+                           "titan", "black dragon", "green dragon" }
+shuffle(barracks_monsters)
+
+-- First barracks area
+for i = 16, 25 do
+    for j = 5, 6 do
+        if percent(60) then -- 60% chance to place a monster
+            des.monster(barracks_monsters[math.random(1, #barracks_monsters)], i, j)
+        end
+    end
+end
+
+-- Second barracks area
+for i = 16, 25 do
+    for j = 10, 11 do
+        if percent(60) then -- 60% chance to place a monster
+            des.monster(barracks_monsters[math.random(1, #barracks_monsters)], i, j)
+        end
+    end
+end
 --   Hallways
 des.region(selection.area(08,03,54,03),"unlit")
 des.region(selection.area(08,13,54,13),"unlit")

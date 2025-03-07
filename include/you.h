@@ -493,6 +493,9 @@ struct you {
     short mcham;             /* vampire mndx if shapeshifted to bat/cloud */
     short umovement;         /* instead of youmonst.movement */
     schar uachieved[N_ACH];  /* list of achievements in the order attained */
+    xint8 retreat_counter;   /* counts consecutive retreats up the stairs */
+    xint8 impatience_counter;/* tracks god impatience for retreating      */
+    boolean retreat_warned;  /* your god has warned you about retreating  */
 }; /* end of `struct you' */
 
 

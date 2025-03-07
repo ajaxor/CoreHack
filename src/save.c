@@ -654,8 +654,8 @@ save_bubbles(NHFILE *nhfp, xint8 lev)
        so that restore can determine whether they are present even when
        u.uz and ledger_no() aren't available to it yet */
     bbubbly = 0;
-    if (lev == ledger_no(&water_level) || lev == ledger_no(&air_level))
-        bbubbly = lev; /* non-zero */
+    //if (lev == ledger_no(&water_level) || lev == ledger_no(&air_level))
+    //    bbubbly = lev; /* non-zero */
     if (nhfp->structlevel)
         bwrite(nhfp->fd, (genericptr_t) &bbubbly, sizeof bbubbly);
 

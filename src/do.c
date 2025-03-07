@@ -22,8 +22,6 @@ staticfn void final_level(void);
 staticfn void temperature_change_msg(schar);
 staticfn boolean better_not_try_to_drop_that(struct obj *);
 
-    /* static boolean badspot(coordxy,coordxy); */
-
 /* the #drop command: drop one inventory item */
 int
 dodrop(void)
@@ -1290,6 +1288,12 @@ dodown(void)
         next_level(!trap);
         ga.at_ladder = FALSE;
     }
+
+    u.retreat_counter -= 1;
+    if (u.retreat_counter < 0) {
+        u.retreat_counter = 0;
+        u.impatience_counter = 0;
+    }
     return ECMD_TIME;
 }
 
@@ -1337,6 +1341,20 @@ doup(void)
         You("are held back by your pet!");
         return ECMD_OK;
     }
+	
+    /* Check if going up would anger your god for backtracking too far */
+    if (!Is_branchlev(&u.uz) && !u.uhave.amulet) {
+        if (u.retreat_counter > u.impatience_counter) {
+            u.impatience_counter = u.retreat_counter; // ensures moving back and forth on the same stairs don't trigger more impatience
+            if (u.retreat_counter > 0) {
+                boolean warning = (u.retreat_counter == 1);
+                gods_impatient(u.ualign.type, warning);
+            }
+        }
+        /* Remember the direction of level change for next time */
+        u.retreat_counter += 1;
+    }
+	
     ga.at_ladder = (boolean) (levl[u.ux][u.uy].typ == LADDER);
     prev_level(TRUE);
     ga.at_ladder = FALSE;

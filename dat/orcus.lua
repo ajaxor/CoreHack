@@ -1,87 +1,92 @@
--- NetHack gehennom orcus.lua	$NHDT-Date: 1652196033 2022/05/10 15:20:33 $  $NHDT-Branch: NetHack-3.7 $:$NHDT-Revision: 1.3 $
---	Copyright (c) 1989 by Jean-Christophe Collet
---	Copyright (c) 1992 by M. Stephenson and Izchak Miller
--- NetHack may be freely redistributed.  See license for details.
---
-des.level_init({ style="mazegrid", bg ="-" });
+-- NetHack gehennom orcus.lua modified for main dungeon
+-- Repurposed from the original Orcus level
+-- Now a ghost town level for the main dungeon
 
-des.level_flags("mazelevel", "shortsighted")
+des.level_init({ style = "solidfill", fg = " ", lit = 0 });
+
+-- Remove the shortsighted flag to make it less difficult
+--des.level_flags("mazelevel")
 
 local tmpbounds = selection.match("-");
 local bnds = tmpbounds:bounds();
 local bounds2 = selection.fillrect(bnds.lx, bnds.ly + 1, bnds.hx - 2, bnds.hy - 1);
 
 -- A ghost town
-local orcus1 = des.map({ halign = "right", valign = "center", map = [[
-.|....|....|....|..............|....|........
-.|....|....|....|..............|....|........
-.|....|....|....|--...-+-------|.............
-.|....|....|....|..............+.............
-.|.........|....|..............|....|........
-.--+-...-+----+--....-------...--------.-+---
-.....................|.....|.................
-.....................|.....|.................
-.--+----....-+---....|.....|...----------+---
-.|....|....|....|....---+---...|......|......
-.|.........|....|..............|......|......
-.----...---------.....-----....+......|......
-.|........................|....|......|......
-.----------+-...--+--|....|....----------+---
-.|....|..............|....+....|.............
-.|....+.......|......|....|....|.............
-.|....|.......|......|....|....|.............
+local orcus1 = des.map({ halign = "center", valign = "center", map = [[
+----------------------------------------------
+||....|....|....|..............|....|........|
+||....|....|....|..............|....|........|
+||....|....|....|--...-+-------|.............|
+||....|....|....|..............+.............|
+||.........|....|..............|....|........|
+|--+-...-+----+--....-------...--------.-+---|
+|....................|.....|.................|
+|....................|.....|.................|
+|--+----....-+---....|.....|...----------+---|
+||....|....|....|....---+---...|......|......|
+||.........|....|..............|......|......|
+|----...---------.....-----....+......|......|
+||........................|....|......|......|
+|----------+-...--+--|....|....----------+---|
+||....|..............|....+....|.............|
+||....+.......|......|....|....|.............|
+||....|.......|......|....|....|.............|
+----------------------------------------------
 ]], contents = function(rm)
-   des.mazewalk(00,06,"west")
+   --des.mazewalk(00,06,"west")
    -- Entire main area
-   des.region(selection.area(01,00,44,16),"unlit")
-   des.stair("down", 33,15)
+   --des.region({region={29,7,50,6},type="ordinary",lit=0, irregular=true, filled=1, joined=true})
+
+   des.stair("down", 33, 16)
+   des.stair("up", 4, 8)
+   
    -- Wall "ruins"
-   des.object("boulder",19,02)
-   des.object("boulder",20,02)
-   des.object("boulder",21,02)
-   des.object("boulder",36,02)
+   des.object("boulder",19,03)
+   des.object("boulder",20,03)
+   des.object("boulder",21,03)
    des.object("boulder",36,03)
-   des.object("boulder",06,04)
-   des.object("boulder",05,05)
+   des.object("boulder",36,04)
    des.object("boulder",06,05)
-   des.object("boulder",07,05)
-   des.object("boulder",39,05)
-   des.object("boulder",08,08)
-   des.object("boulder",09,08)
-   des.object("boulder",10,08)
-   des.object("boulder",11,08)
-   des.object("boulder",06,10)
-   des.object("boulder",05,11)
+   des.object("boulder",05,06)
+   des.object("boulder",06,06)
+   des.object("boulder",07,06)
+   des.object("boulder",39,06)
+   des.object("boulder",08,09)
+   des.object("boulder",09,09)
+   des.object("boulder",10,09)
+   des.object("boulder",11,09)
    des.object("boulder",06,11)
-   des.object("boulder",07,11)
-   des.object("boulder",21,11)
+   des.object("boulder",05,12)
+   des.object("boulder",06,12)
+   des.object("boulder",07,12)
    des.object("boulder",21,12)
-   des.object("boulder",13,13)
-   des.object("boulder",14,13)
-   des.object("boulder",15,13)
+   des.object("boulder",21,13)
+   des.object("boulder",13,14)
    des.object("boulder",14,14)
+   des.object("boulder",15,14)
+   des.object("boulder",14,15)
    -- Doors
-   des.door("closed",23,02)
-   des.door("open",31,03)
-   des.door("nodoor",03,05)
-   des.door("closed",09,05)
-   des.door("closed",14,05)
-   des.door("closed",41,05)
-   des.door("open",03,08)
-   des.door("nodoor",13,08)
-   des.door("open",41,08)
-   des.door("closed",24,09)
-   des.door("closed",31,11)
-   des.door("open",11,13)
-   des.door("closed",18,13)
-   des.door("closed",41,13)
-   des.door("open",26,14)
-   des.door("closed",06,15)
+   des.door("closed",23,03)
+   des.door("open",31,04)
+   des.door("nodoor",03,06)
+   des.door("closed",09,06)
+   des.door("closed",14,06)
+   des.door("closed",41,06)
+   des.door("open",03,09)
+   des.door("nodoor",13,09)
+   des.door("open",41,09)
+   des.door("closed",24,10)
+   des.door("closed",31,12)
+   des.door("open",11,14)
+   des.door("closed",18,14)
+   des.door("closed",41,14)
+   des.door("open",26,15)
+   des.door("closed",06,16)
    -- Special rooms
-   des.altar({ x=24,y=07,align="noalign",type="sanctum" })
-   des.region({ region={22,12,25,16},lit=0,type="morgue",filled=1 })
-   des.region({ region={32,09,37,12},lit=1,type="shop",filled=1 })
-   des.region({ region={12,00,15,04},lit=1,type="shop",filled=1 })
+   des.altar({ x=24,y=08,align="noalign",type="altar" }) -- Changed from sanctum to regular altar
+   des.region({ region={22,13,25,17},lit=0,type="morgue",filled=1 })
+   des.region({ region={32,10,37,13},lit=1,type="shop",filled=1 })
+   des.region({ region={12,01,15,05},lit=1,type="shop",filled=1 })
    -- Some traps.
    des.trap("spiked pit")
    des.trap("sleep gas")
@@ -102,26 +107,24 @@ local orcus1 = des.map({ halign = "right", valign = "center", map = [[
    des.object()
    des.object()
    des.object()
-   -- The resident nasty
-   des.monster("Orcus",33,15)
-   -- And its preferred companions
-   des.monster("human zombie",32,15)
-   des.monster("shade",32,14)
-   des.monster("shade",32,16)
-   des.monster("vampire",35,16)
-   des.monster("vampire",35,14)
-   des.monster("vampire lord",36,14)
-   des.monster("vampire lord",36,15)
-   -- Randomly placed companions
+   des.object()
+   des.object()
+   -- Replace Orcus with some challenging but not overwhelming monsters
+   des.monster("vampire lord",33,16)
+   -- Reduced number of companions and made them less dangerous
+   des.monster("human zombie",32,16)
+   des.monster("wraith",32,15)
+   des.monster("wraith",32,17)
+   des.monster("vampire",35,17)
+   des.monster("vampire",35,15)
+   -- Randomly placed monsters (reduced number and difficulty)
    des.monster("skeleton")
    des.monster("skeleton")
    des.monster("skeleton")
    des.monster("skeleton")
    des.monster("skeleton")
    des.monster("shade")
-   des.monster("shade")
-   des.monster("shade")
-   des.monster("shade")
+
    des.monster("giant zombie")
    des.monster("giant zombie")
    des.monster("giant zombie")
@@ -133,10 +136,7 @@ local orcus1 = des.map({ halign = "right", valign = "center", map = [[
    des.monster("human zombie")
    des.monster("vampire")
    des.monster("vampire")
-   des.monster("vampire")
-   des.monster("vampire lord")
-   des.monster("vampire lord")
-   -- A few more for the party
+   -- A few more random monsters
    des.monster()
    des.monster()
    des.monster()
@@ -144,9 +144,6 @@ local orcus1 = des.map({ halign = "right", valign = "center", map = [[
    des.monster()
 end });
 
-des.levregion({ region={01,00,12,20}, region_islev=1, exclude={20,01,70,20}, exclude_islev=1, type="stair-up" });
-des.levregion({ region={01,00,12,20}, region_islev=1, exclude={20,01,70,20}, exclude_islev=1, type="branch" });
-des.teleport_region({ region={01,00,12,20}, region_islev=1, exclude={20,01,70,20}, exclude_islev=1 });
+-- Remove teleport restrictions
 
-local protected = bounds2:negate() | orcus1;
-hell_tweaks(protected);
+-- No need for hell_tweaks since this is no longer in Gehennom
