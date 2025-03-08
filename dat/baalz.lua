@@ -40,7 +40,7 @@ des.map({ halign = "right", valign = "center", map = [[
 -- this actually leaves the farthest right column diggable
 -- des.non_diggable(selection.area(00,00,47,12))
 -- des.mazewalk(00,06,"west")
-des.stair("up", 30,08)    
+des.stair("up", 3,08)    
 des.stair("down", 44,08)    
 --des.door("locked",00,08)
 -- The fellow in residence

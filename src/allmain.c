@@ -215,7 +215,8 @@ moveloop_core(void)
                    monster effectively loses its first turn */
                 if (!rn2(u.uevent.udemigod ? 25
                          : (depth(&u.uz) > depth(&stronghold_level)) ? 50
-                         : 70))
+                         : 70)
+                    && u.uhave.amulet)
                     (void) makemon((struct permonst *) 0, 0, 0,
                                    NO_MM_FLAGS);
 

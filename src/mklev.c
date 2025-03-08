@@ -1414,11 +1414,6 @@ level_finalize_topology(void)
        entered; svr.rooms[].orig_rtype always retains original rtype value */
     for (ridx = 0; ridx < SIZE(svr.rooms); ridx++)
         svr.rooms[ridx].orig_rtype = svr.rooms[ridx].rtype;
-
-    /* Disable random monster generation after level creation */
-    if (!u.uhave.amulet) {
-	    svl.level.flags.rndmongen = 0;
-		}
 }
 
 void
