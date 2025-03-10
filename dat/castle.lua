@@ -253,7 +253,7 @@ shuffle(barracks_monsters)
 -- First barracks area
 for i = 16, 25 do
     for j = 5, 6 do
-        if percent(60) then -- 60% chance to place a monster
+        if percent(20) then
             des.monster(barracks_monsters[math.random(1, #barracks_monsters)], i, j)
         end
     end
@@ -262,7 +262,7 @@ end
 -- Second barracks area
 for i = 16, 25 do
     for j = 10, 11 do
-        if percent(60) then -- 60% chance to place a monster
+        if percent(20) then
             des.monster(barracks_monsters[math.random(1, #barracks_monsters)], i, j)
         end
     end

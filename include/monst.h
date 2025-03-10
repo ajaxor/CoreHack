@@ -253,7 +253,7 @@ struct monst {
 
 /* Get the maximum difficulty monsters that can currently be generated,
    given the current level difficulty and the hero's level. */
-#define monmax_difficulty(levdif) (((levdif) + u.ulevel) / 2)
+#define monmax_difficulty(levdif) (min(levdif * 15 / 25, 15))
 #define monmin_difficulty(levdif) ((levdif) / 6)
 #define monmax_difficulty_lev() (monmax_difficulty(level_difficulty()))
 

@@ -1662,7 +1662,7 @@ rndmonst_adj(int minadj, int maxadj)
 
     zlevel = level_difficulty();
     minmlev = monmin_difficulty(zlevel) + minadj;
-    maxmlev = monmax_difficulty(zlevel) + maxadj;
+    maxmlev = max(monmax_difficulty(zlevel) + maxadj, 0);
     upper = Is_rogue_level(&u.uz); /* prefer uppercase only on rogue level */
     elemlevel = In_endgame(&u.uz) && !Is_astralevel(&u.uz); /* elmntl plane */
 

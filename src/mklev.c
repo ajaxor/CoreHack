@@ -1201,30 +1201,30 @@ makelevel(void)
         if (wizard && nh_getenv("SHOPTYPE"))
             do_mkroom(SHOPBASE);
         else if (u_depth > 1 // && u_depth < depth(&medusa_level)
-                 && svn.nroom >= room_threshold && rn2(u_depth) < 3)
+                 && svn.nroom >= room_threshold && rn2(min(u_depth, 10)) < 3)
             do_mkroom(SHOPBASE);
         else if (u_depth > 4 && !rn2(6))
             do_mkroom(COURT);
-        else if (u_depth > 5 && !rn2(8)
+        else if (u_depth > 6 && !rn2(9)
                  && !(svm.mvitals[PM_LEPRECHAUN].mvflags & G_GONE))
             do_mkroom(LEPREHALL);
-        else if (u_depth > 6 && !rn2(7))
+        else if (u_depth > 8 && !rn2(7))
             do_mkroom(ZOO);
-        else if (u_depth > 8 && !rn2(5))
+        else if (u_depth > 10 && !rn2(5))
             do_mkroom(TEMPLE);
-        else if (u_depth > 9 && !rn2(5)
+        else if (u_depth > 12 && !rn2(5)
                  && !(svm.mvitals[PM_KILLER_BEE].mvflags & G_GONE))
             do_mkroom(BEEHIVE);
-        else if (u_depth > 11 && !rn2(6))
+        else if (u_depth > 14 && !rn2(6))
             do_mkroom(MORGUE);
-        else if (u_depth > 12 && !rn2(8) && antholemon())
+        else if (u_depth > 16 && !rn2(8) && antholemon())
             do_mkroom(ANTHOLE);
-        else if (u_depth > 14 && !rn2(4)
+        else if (u_depth > 18 && !rn2(4)
                  && !(svm.mvitals[PM_SOLDIER].mvflags & G_GONE))
             do_mkroom(BARRACKS);
-        else if (u_depth > 15 && !rn2(6))
+        else if (u_depth > 20 && !rn2(6))
             do_mkroom(SWAMP);
-        else if (u_depth > 16 && !rn2(8)
+        else if (u_depth > 21 && !rn2(8)
                  && !(svm.mvitals[PM_COCKATRICE].mvflags & G_GONE))
             do_mkroom(COCKNEST);
 

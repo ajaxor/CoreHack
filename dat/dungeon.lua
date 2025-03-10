@@ -57,12 +57,6 @@ dungeon = {
            range = 0
          },
          {
-            name = "baalz",
-            bonetag = "L",
-            base = 15,
-            range = 0
-         },
-         {
             name = "orcus",
             bonetag = "G",
             base = 24,

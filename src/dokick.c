@@ -924,7 +924,7 @@ kick_door(coordxy x, coordxy y, int avrg_attrib)
     }
 
     exercise(A_DEX, TRUE);
-    doorbuster = Upolyd && is_giant(gy.youmonst.data);
+    doorbuster = TRUE;  //Upolyd &&is_giant(gy.youmonst.data);
     /* door is known to be CLOSED or LOCKED */
     if (doorbuster
         || (rnl(35) < avrg_attrib + (!martial() ? 0 : ACURR(A_DEX)))) {
@@ -948,6 +948,7 @@ kick_door(coordxy x, coordxy y, int avrg_attrib)
             exercise(A_STR, TRUE);
             gm.maploc->doormask = D_BROKEN;
         }
+        exercise(A_STR, TRUE);
         feel_newsym(x, y); /* we know we broke it */
         unblock_point(x, y); /* vision */
         if (shopdoor) {
