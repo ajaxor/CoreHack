@@ -13,12 +13,6 @@ dungeon = {
       themerooms = "themerms.lua",
       branches = {
          {
-            name = "The Quest",
-            base = 20,
-            range = 0,
-            branchtype = "portal"
-         },
-         {
             name = "The Elemental Planes",
             base = 1,
             branchtype = "no_down",
