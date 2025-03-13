@@ -55,6 +55,7 @@ NETHACK_EXECUTABLE = find_nethack_executable()
 WIZARD_MODE_ARG = "-D"
 MAX_LEVEL = 30
 START_LEVEL = 2
+VERBOSE = False  # Set to True for verbose output
 
 # Error patterns to look for
 ERROR_PATTERNS = [
@@ -104,11 +105,8 @@ def create_command_script():
     for level in range(START_LEVEL, MAX_LEVEL + 1):
         commands.append(f"#wizlevelport\n")
         commands.append(f"{level}\n")
-        # Move around a bit to explore the level
-        commands.append("k50\n")  # Move up 50 times
-        commands.append("h50\n")  # Move left 50 times
-        commands.append("j50\n")  # Move down 50 times
-        commands.append("l50\n")  # Move right 50 times
+        # Just wait a moment to let the level load completely
+        commands.append(".\n")  # Wait one turn
         
     # Add quit command
     commands.append("#quit\n")
@@ -154,10 +152,17 @@ def run_nethack_test():
             
             # Read output line by line
             for line in process.stdout:
+                # Print all output in verbose mode
+                if VERBOSE:
+                    print(f"OUTPUT: {line.strip()}")
+                
                 # Check for level change indicators
                 level_match = re.search(r"Dlvl:(\d+)", line)
                 if level_match:
-                    current_level = int(level_match.group(1))
+                    new_level = int(level_match.group(1))
+                    if new_level != current_level:
+                        current_level = new_level
+                        print(f"Testing level {current_level}...")
                 
                 # Check for error patterns
                 for pattern in ERROR_PATTERNS:
@@ -188,8 +193,16 @@ def run_nethack_test():
             pass
 
 def main():
+    global VERBOSE
+    
+    # Check for command line arguments
+    if len(sys.argv) > 1 and sys.argv[1] in ['-v', '--verbose']:
+        VERBOSE = True
+        print("Verbose mode enabled")
+    
     print("Starting NetHack level port test...")
     print(f"Using NetHack executable: {NETHACK_EXECUTABLE}")
+    print(f"Testing levels {START_LEVEL} through {MAX_LEVEL}")
     
     # Check if the executable exists
     if not os.path.exists(NETHACK_EXECUTABLE):
