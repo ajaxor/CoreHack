@@ -9,6 +9,19 @@ if "%1"=="--quiet" (
     echo ===================
 )
 
+rem Check if Lua source files exist
+if not exist "..\..\..\..\lib\lua-5.4.6\src\lapi.c" (
+    echo ERROR: Lua source files not found.
+    echo Expected path: ..\..\..\..\lib\lua-5.4.6\src\lapi.c
+    echo Current directory: %CD%
+    echo.
+    echo Please make sure:
+    echo 1. You have downloaded the Lua 5.4.6 source code
+    echo 2. It is placed in the correct location (lib\lua-5.4.6)
+    echo 3. You are running this script from sys\windows\vs directory
+    exit /b 1
+)
+
 if "%VSCMD_VER%"=="" (
     if %QUIET_MODE%==0 echo MSBuild environment not set ... attempting to setup build environment.
     call :setup_environment
@@ -33,7 +46,14 @@ for %%c in (%BUILD_CONFIGS%) do (
         if %QUIET_MODE%==0 echo Building %%c for %%p...
         msbuild NetHack.sln /t:Clean;Build /p:Configuration=%%c;Platform=%%p /nologo /verbosity:minimal
         if errorlevel 1 (
-            if %QUIET_MODE%==0 echo Build failed for %%c/%%p configuration
+            if %QUIET_MODE%==0 (
+                echo.
+                echo Build failed for %%c/%%p configuration
+                echo If you're seeing errors about missing Lua files, make sure:
+                echo 1. You have downloaded the Lua 5.4.6 source code
+                echo 2. It is placed in the correct location (lib\lua-5.4.6)
+                echo 3. You are running this script from sys\windows\vs directory
+            )
             exit /b 1
         )
         if %QUIET_MODE%==0 (
