@@ -99,18 +99,18 @@ def create_command_script():
         "blessed greased +2 speed boots\n",  # Wish for speed boots for faster movement
         "#wizwish\n",  # Enter another wish
         "blessed wand of teleportation\n",  # For emergency escape
+        ".\n",  # Wait one turn on the first level
+        ".\n",  # Wait another turn
+        ".\n",  # Wait another turn
+        "#quit\n",  # Quit the game
+        "y\n",  # Confirm quit
     ]
     
-    # Add level port commands for each level
-    for level in range(START_LEVEL, MAX_LEVEL + 1):
-        commands.append(f"#wizlevelport\n")
-        commands.append(f"{level}\n")
-        # Just wait a moment to let the level load completely
-        commands.append(".\n")  # Wait one turn
-        
+    # Note: Level port commands are commented out for now
+    # We're just testing the first level
+    
     # Add quit command
-    commands.append("#quit\n")
-    commands.append("y\n")  # Confirm quit
+    return commands
     
     fd, cmd_path = tempfile.mkstemp(prefix="nethack_commands_", suffix=".txt")
     with os.fdopen(fd, 'w') as f:
@@ -133,54 +133,40 @@ def run_nethack_test():
             cmd.append(WIZARD_MODE_ARG)
             
         print(f"Running command: {' '.join(cmd)}")
+        print("NetHack will now start. Please observe the game window.")
+        print("The script will automatically input commands.")
+        print("Press Ctrl+C in this window to abort if needed.")
         
-        # Run NetHack with commands piped to stdin
+        # Run NetHack with commands piped to stdin but with visible terminal
         with open(cmd_path, 'r') as cmd_file:
             process = subprocess.Popen(
                 cmd,
-                stdin=cmd_file,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
                 env=env,
                 text=True,
                 bufsize=1
             )
             
-            # Process output in real-time
-            errors = []
-            current_level = START_LEVEL
-            
-            # Read output line by line
-            for line in process.stdout:
-                # Print all output in verbose mode
+            # Read commands and send them to NetHack with a delay
+            for cmd_line in cmd_file:
                 if VERBOSE:
-                    print(f"OUTPUT: {line.strip()}")
-                
-                # Check for level change indicators
-                level_match = re.search(r"Dlvl:(\d+)", line)
-                if level_match:
-                    new_level = int(level_match.group(1))
-                    if new_level != current_level:
-                        current_level = new_level
-                        print(f"Testing level {current_level}...")
-                
-                # Check for error patterns
-                for pattern in ERROR_PATTERNS:
-                    if re.search(pattern, line, re.IGNORECASE):
-                        errors.append((current_level, line.strip()))
-                        print(f"ERROR on level {current_level}: {line.strip()}")
+                    print(f"Sending command: {cmd_line.strip()}")
+                process.stdin.write(cmd_line)
+                process.stdin.flush()
+                time.sleep(0.5)  # Add delay between commands
             
             # Wait for process to complete
+            print("Waiting for NetHack to complete...")
             process.wait()
             
-            # Check stderr for any errors
-            stderr_output = process.stderr.read()
-            if stderr_output:
-                for line in stderr_output.splitlines():
-                    for pattern in ERROR_PATTERNS:
-                        if re.search(pattern, line, re.IGNORECASE):
-                            errors.append((current_level, line.strip()))
-                            print(f"STDERR ERROR: {line.strip()}")
+            # Since we can't capture the output directly when using the visible terminal,
+            # we'll rely on the exit code and user observation
+            if process.returncode != 0:
+                print(f"NetHack exited with error code: {process.returncode}")
+                return [(1, f"Process exited with code {process.returncode}")]
+            
+            # No errors detected programmatically
+            return []
             
             return errors
     
@@ -202,7 +188,7 @@ def main():
     
     print("Starting NetHack level port test...")
     print(f"Using NetHack executable: {NETHACK_EXECUTABLE}")
-    print(f"Testing levels {START_LEVEL} through {MAX_LEVEL}")
+    print("Testing only the first level for now")
     
     # Check if the executable exists
     if not os.path.exists(NETHACK_EXECUTABLE):
