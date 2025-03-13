@@ -18,8 +18,8 @@ echo.
 echo Building NetHack...
 echo.
 
-set BUILD_CONFIGS=Debug Release
-set BUILD_PLATFORMS=Win32 x64
+set BUILD_CONFIGS=Debug
+set BUILD_PLATFORMS=x64
 
 for %%c in (%BUILD_CONFIGS%) do (
     for %%p in (%BUILD_PLATFORMS%) do (
