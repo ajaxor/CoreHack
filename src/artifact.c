@@ -1064,6 +1064,11 @@ spec_abon(struct obj *otmp, struct monst *mon)
     if (weap != &artilist[ART_NONARTIFACT]
             && weap->attk.damn && spec_applies(weap, mon))
         return rnd((int) weap->attk.damn);
+    
+    /* Special case for Longbow of Diana - gives bonus to hit */
+    if (is_art(otmp, ART_LONGBOW_OF_DIANA) && otmp->owornmask & W_WEP)
+        return rnd(2) + (otmp->spe > 0 ? 1 : 0);
+    
     return 0;
 }
 
@@ -1086,6 +1091,17 @@ spec_dbon(struct obj *otmp, struct monst *mon, int tmp)
 
     if (gs.spec_dbon_applies)
         return weap->attk.damd ? rnd((int) weap->attk.damd) : max(tmp, 1);
+    
+    /* Special case for Longbow of Diana - gives bonus damage */
+    if (is_art(otmp, ART_LONGBOW_OF_DIANA) && otmp->owornmask & W_WEP) {
+        /* Bonus damage for the bow itself */
+        int bonus = d(1, 4);
+        /* Extra bonus against animals (Diana is goddess of the hunt) */
+        if (mon && is_animal(mon->data))
+            bonus += d(1, 4);
+        return bonus;
+    }
+    
     return 0;
 }
 
@@ -1945,11 +1961,15 @@ arti_invoke(struct obj *obj)
                 if (otmp->spe < 0)
                     otmp->spe = 0;
                 otmp->quan += rnd(10);
+                otmp->spe += rnd(2); /* blessed arrows get a damage bonus */
             } else if (obj->cursed) {
                 if (otmp->spe > 0)
                     otmp->spe = 0;
-            } else
+            } else {
                 otmp->quan += rnd(5);
+                if (!rn2(3)) /* sometimes give a small bonus to uncursed too */
+                    otmp->spe += 1;
+            }
             otmp->owt = weight(otmp);
             otmp = hold_another_object(otmp, "Suddenly %s out.",
                                        aobjnam(otmp, "fall"), (char *) 0);
