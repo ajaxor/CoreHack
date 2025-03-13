@@ -9,19 +9,6 @@ if "%1"=="--quiet" (
     echo ===================
 )
 
-rem Check if Lua source files exist
-if not exist "..\..\..\..\lib\lua-5.4.6\src\lapi.c" (
-    echo ERROR: Lua source files not found.
-    echo Expected path: ..\..\..\..\lib\lua-5.4.6\src\lapi.c
-    echo Current directory: %CD%
-    echo.
-    echo Please make sure:
-    echo 1. You have downloaded the Lua 5.4.6 source code
-    echo 2. It is placed in the correct location (lib\lua-5.4.6)
-    echo 3. You are running this script from sys\windows\vs directory
-    exit /b 1
-)
-
 if "%VSCMD_VER%"=="" (
     if %QUIET_MODE%==0 echo MSBuild environment not set ... attempting to setup build environment.
     call :setup_environment
@@ -38,22 +25,24 @@ if %QUIET_MODE%==0 (
     echo.
 )
 
-set BUILD_CONFIGS=Debug Release
+set BUILD_CONFIGS=Debug
 set BUILD_PLATFORMS=x64
 
+REM First build the fetchprereq project to ensure all dependencies are available
+if %QUIET_MODE%==0 echo Building fetchprereq to get dependencies...
+msbuild NetHack.sln /t:fetchprereq /p:Configuration=Debug;Platform=x64 /nologo /verbosity:minimal
+if errorlevel 1 (
+    if %QUIET_MODE%==0 echo Failed to fetch prerequisites
+    exit /b 1
+)
+
+REM Now build the rest of the solution
 for %%c in (%BUILD_CONFIGS%) do (
     for %%p in (%BUILD_PLATFORMS%) do (
         if %QUIET_MODE%==0 echo Building %%c for %%p...
-        msbuild NetHack.sln /t:Clean;Build /p:Configuration=%%c;Platform=%%p /nologo /verbosity:minimal
+        msbuild NetHack.sln /t:Build /p:Configuration=%%c;Platform=%%p /nologo /verbosity:minimal
         if errorlevel 1 (
-            if %QUIET_MODE%==0 (
-                echo.
-                echo Build failed for %%c/%%p configuration
-                echo If you're seeing errors about missing Lua files, make sure:
-                echo 1. You have downloaded the Lua 5.4.6 source code
-                echo 2. It is placed in the correct location (lib\lua-5.4.6)
-                echo 3. You are running this script from sys\windows\vs directory
-            )
+            if %QUIET_MODE%==0 echo Build failed for %%c/%%p configuration
             exit /b 1
         )
         if %QUIET_MODE%==0 (

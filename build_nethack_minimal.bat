@@ -15,7 +15,11 @@ set "temp_log=%TEMP%\nethack_build_log.txt"
 call build.bat > "%temp_log%" 2>&1
 set build_result=%errorlevel%
 
-if %build_result% neq 0 (
+if %build_result% == 0 (
+    echo BUILD SUCCESSFUL
+    del "%temp_log%" 2>nul
+    exit /b 0
+) else (
     echo BUILD FAILED with exit code %build_result%
     
     rem Display only error lines from the log (limited to 10)
@@ -30,8 +34,4 @@ if %build_result% neq 0 (
     
     del "%temp_log%" "%temp_log%_errors.txt" 2>nul
     exit /b 1
-) else (
-    echo BUILD SUCCESSFUL
-    del "%temp_log%" 2>nul
-    exit /b 0
 )
