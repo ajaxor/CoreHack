@@ -16,7 +16,42 @@ import time
 from pathlib import Path
 
 # Configuration
-NETHACK_EXECUTABLE = "nethack"  # Update this path if needed
+# Try to find NetHack executable in common locations
+def find_nethack_executable():
+    # Common locations on Windows
+    windows_paths = [
+        r".\nethack.exe",
+        r".\build\nethack.exe",
+        r".\binary\nethack.exe",
+        r"..\binary\nethack.exe",
+        r"..\nethack.exe",
+        r".\src\nethack.exe",
+    ]
+    
+    # Check if we're on Windows
+    if os.name == 'nt':
+        for path in windows_paths:
+            if os.path.exists(path):
+                print(f"Found NetHack at: {path}")
+                return path
+        
+        # Try to find in current directory or subdirectories
+        for root, dirs, files in os.walk('.', topdown=True, followlinks=False):
+            # Limit depth to prevent excessive searching
+            if root.count(os.sep) > 3:
+                dirs.clear()  # Don't go deeper
+                continue
+                
+            for file in files:
+                if file.lower() in ('nethack.exe', 'nethackw.exe'):
+                    path = os.path.join(root, file)
+                    print(f"Found NetHack at: {path}")
+                    return path
+    
+    # Default to "nethack" and let the system find it
+    return "nethack"
+
+NETHACK_EXECUTABLE = find_nethack_executable()
 WIZARD_MODE_ARG = "-D"
 MAX_LEVEL = 30
 START_LEVEL = 2
@@ -45,8 +80,9 @@ OPTIONS=gender:male
 OPTIONS=align:neutral
 OPTIONS=autopickup
 OPTIONS=!legacy
-OPTIONS=suppress_alert:3.6.0
+OPTIONS=suppress_alert:3.7.0
 OPTIONS=windowtype:tty
+OPTIONS=menu_headings:inverse
 """
     fd, nhrc_path = tempfile.mkstemp(prefix="nethack_test_", suffix=".nethackrc")
     with os.fdopen(fd, 'w') as f:
@@ -60,13 +96,19 @@ def create_command_script():
         "y\n",  # Confirm character
         "#wizwish\n",  # Enter wish
         "blessed greased +2 speed boots\n",  # Wish for speed boots for faster movement
+        "#wizwish\n",  # Enter another wish
+        "blessed wand of teleportation\n",  # For emergency escape
     ]
     
     # Add level port commands for each level
     for level in range(START_LEVEL, MAX_LEVEL + 1):
         commands.append(f"#wizlevelport\n")
         commands.append(f"{level}\n")
-        commands.append("100\n")  # Look around a bit
+        # Move around a bit to explore the level
+        commands.append("k50\n")  # Move up 50 times
+        commands.append("h50\n")  # Move left 50 times
+        commands.append("j50\n")  # Move down 50 times
+        commands.append("l50\n")  # Move right 50 times
         
     # Add quit command
     commands.append("#quit\n")
@@ -87,10 +129,17 @@ def run_nethack_test():
         env = os.environ.copy()
         env["NETHACKOPTIONS"] = f"@{nhrc_path}"
         
+        # Prepare command
+        cmd = [NETHACK_EXECUTABLE]
+        if WIZARD_MODE_ARG:
+            cmd.append(WIZARD_MODE_ARG)
+            
+        print(f"Running command: {' '.join(cmd)}")
+        
         # Run NetHack with commands piped to stdin
         with open(cmd_path, 'r') as cmd_file:
             process = subprocess.Popen(
-                [NETHACK_EXECUTABLE, WIZARD_MODE_ARG],
+                cmd,
                 stdin=cmd_file,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -140,16 +189,36 @@ def run_nethack_test():
 
 def main():
     print("Starting NetHack level port test...")
-    errors = run_nethack_test()
+    print(f"Using NetHack executable: {NETHACK_EXECUTABLE}")
     
-    if errors:
-        print(f"\nTest FAILED with {len(errors)} errors:")
-        for level, error in errors:
-            print(f"Level {level}: {error}")
+    # Check if the executable exists
+    if not os.path.exists(NETHACK_EXECUTABLE):
+        print(f"ERROR: NetHack executable not found at {NETHACK_EXECUTABLE}")
+        print("Please specify the path to the NetHack executable:")
+        print("  1. Edit this script and update the NETHACK_EXECUTABLE variable")
+        print("  2. Or place the script in the same directory as the NetHack executable")
         return 1
-    else:
-        print("\nTest PASSED! All levels checked successfully.")
-        return 0
+    
+    try:
+        errors = run_nethack_test()
+        
+        if errors:
+            print(f"\nTest FAILED with {len(errors)} errors:")
+            for level, error in errors:
+                print(f"Level {level}: {error}")
+            return 1
+        else:
+            print("\nTest PASSED! All levels checked successfully.")
+            return 0
+    except FileNotFoundError as e:
+        print(f"ERROR: Failed to run NetHack: {e}")
+        print("Please ensure NetHack is installed and the path is correct.")
+        return 1
+    except Exception as e:
+        print(f"ERROR: An unexpected error occurred: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
