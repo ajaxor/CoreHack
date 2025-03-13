@@ -9,6 +9,8 @@
 #include <string.h>
 #endif
 
+#include <sys/stat.h>
+
 #define DATAPREFIX 4        /* see decl.h */
 
 #ifdef DLB
@@ -409,6 +411,29 @@ static const dlb_procs_t rsrc_dlb_procs = { rsrc_dlb_init,  rsrc_dlb_cleanup,
                                      rsrc_dlb_ftell };
 #endif
 
+/* Check if a file exists in the gen directory */
+boolean
+file_exists_in_gdir(const char *filename)
+{
+    char path[BUFSZ];
+    struct stat sb;
+    
+    Sprintf(path, "%s/%s", GEN_DIR, filename);
+    return (stat(path, &sb) == 0 && S_ISREG(sb.st_mode));
+}
+
+/* Try to open a file from the gen directory */
+FILE *
+fopen_gen_file(const char *filename, const char *mode)
+{
+    char path[BUFSZ];
+    FILE *fp;
+    
+    Sprintf(path, "%s/%s", GEN_DIR, filename);
+    fp = fopen(path, mode);
+    return fp;
+}
+
 /* Global wrapper functions ------------------------------------------------
  */
 
@@ -466,6 +491,14 @@ dlb_fopen(const char *name, const char *mode)
         return (dlb *) 0;
 
     dp = (dlb *) alloc(sizeof(dlb));
+    
+    /* First try to open from the gen directory if it exists */
+    if ((fp = fopen_gen_file(name, mode)) != 0) {
+        dp->fp = fp;
+        return dp;
+    }
+    
+    /* If not found in gen directory, try the standard DLB approach */
     if (do_dlb_fopen(dp, name, mode))
         dp->fp = (FILE *) 0;
     else if ((fp = fopen_datafile(name, mode, DATAPREFIX)) != 0)

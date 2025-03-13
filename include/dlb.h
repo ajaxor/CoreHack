@@ -118,6 +118,11 @@ long rsrc_dlb_ftell(dlb *dp);
 
 /* various other I/O stuff we don't want to replicate everywhere */
 
+/* Check if a file exists in the gen directory */
+boolean file_exists_in_gdir(const char *filename);
+/* Try to open a file from the gen directory */
+FILE *fopen_gen_file(const char *filename, const char *mode);
+
 #ifndef SEEK_SET
 #define SEEK_SET 0
 #endif

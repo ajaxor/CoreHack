@@ -1221,7 +1221,17 @@ init_dungeons(void)
         panic1("'nhl_init' failed; can't continue.");
         /*NOTREACHED*/
     }
-    if (!nhl_loadlua(L, DUNGEON_FILE)) {
+    
+    /* First try to load from the gen directory */
+    if (file_exists_in_gdir(DUNGEON_FILE)) {
+        char gen_path[BUFSZ];
+        Sprintf(gen_path, "%s/%s", GEN_DIR, DUNGEON_FILE);
+        if (!nhl_loadlua(L, gen_path)) {
+            char tbuf[BUFSZ];
+            Sprintf(tbuf, "Cannot open dungeon description from gen directory - \"%s\"", gen_path);
+            panic1(tbuf);
+        }
+    } else if (!nhl_loadlua(L, DUNGEON_FILE)) {
         char tbuf[BUFSZ];
         Sprintf(tbuf, "Cannot open dungeon description - \"%s", DUNGEON_FILE);
 #ifdef DLBRSRC /* using a resource from the executable */
