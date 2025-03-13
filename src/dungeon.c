@@ -1225,6 +1225,9 @@ init_dungeons(void)
     /* First try to load from the gen directory */
     if (file_exists_in_gdir(DUNGEON_FILE)) {
         char gen_path[BUFSZ];
+#ifndef GEN_DIR
+#define GEN_DIR "gen"
+#endif
         Sprintf(gen_path, "%s/%s", GEN_DIR, DUNGEON_FILE);
         if (!nhl_loadlua(L, gen_path)) {
             char tbuf[BUFSZ];
