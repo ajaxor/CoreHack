@@ -1,40 +1,49 @@
 @echo off
 setlocal enabledelayedexpansion
 
-echo NetHack Build Script
-echo ===================
-
-if "%VSCMD_VER%"=="" (
-	echo MSBuild environment not set ... attempting to setup build environment.
-	call :setup_environment
+if "%1"=="--quiet" (
+    set QUIET_MODE=1
+) else (
+    set QUIET_MODE=0
+    echo NetHack Build Script
+    echo ===================
 )
 
 if "%VSCMD_VER%"=="" (
-	echo Unable to setup build environment. Exiting.
-	goto :EOF
+    if %QUIET_MODE%==0 echo MSBuild environment not set ... attempting to setup build environment.
+    call :setup_environment
 )
 
-echo.
-echo Building NetHack...
-echo.
+if "%VSCMD_VER%"=="" (
+    echo Unable to setup build environment. Exiting.
+    exit /b 1
+)
+
+if %QUIET_MODE%==0 (
+    echo.
+    echo Building NetHack...
+    echo.
+)
 
 set BUILD_CONFIGS=Debug
 set BUILD_PLATFORMS=x64
 
 for %%c in (%BUILD_CONFIGS%) do (
     for %%p in (%BUILD_PLATFORMS%) do (
-        echo Building %%c for %%p...
-        msbuild NetHack.sln /t:Clean;Build /p:Configuration=%%c;Platform=%%p
+        if %QUIET_MODE%==0 echo Building %%c for %%p...
+        msbuild NetHack.sln /t:Clean;Build /p:Configuration=%%c;Platform=%%p /nologo /verbosity:minimal
         if errorlevel 1 (
-            echo Build failed for %%c/%%p configuration
+            if %QUIET_MODE%==0 echo Build failed for %%c/%%p configuration
             exit /b 1
         )
-        echo %%c/%%p build completed successfully
-        echo.
+        if %QUIET_MODE%==0 (
+            echo %%c/%%p build completed successfully
+            echo.
+        )
     )
 )
 
-echo All builds completed successfully!
+if %QUIET_MODE%==0 echo All builds completed successfully!
 goto :EOF
 
 :setup_environment
