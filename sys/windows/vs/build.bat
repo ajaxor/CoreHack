@@ -38,7 +38,7 @@ if %QUIET_MODE%==0 (
     echo.
 )
 
-set BUILD_CONFIGS=Debug
+set BUILD_CONFIGS=Debug Release
 set BUILD_PLATFORMS=x64
 
 for %%c in (%BUILD_CONFIGS%) do (
