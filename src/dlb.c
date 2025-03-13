@@ -423,7 +423,12 @@ file_exists_in_gdir(const char *filename)
     struct stat sb;
     
     Sprintf(path, "%s/%s", GEN_DIR, filename);
+#if defined(_MSC_VER)
+    /* Windows doesn't have S_ISREG, use a different approach */
+    return (stat(path, &sb) == 0 && (sb.st_mode & S_IFMT) == S_IFREG);
+#else
     return (stat(path, &sb) == 0 && S_ISREG(sb.st_mode));
+#endif
 }
 
 /* Try to open a file from the gen directory */
