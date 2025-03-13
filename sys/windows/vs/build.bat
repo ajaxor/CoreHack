@@ -47,6 +47,7 @@ if %QUIET_MODE%==0 echo All builds completed successfully!
 goto :EOF
 
 :setup_environment
+cd %~dp0
 echo Searching for Visual Studio installation...
 
 rem Try Visual Studio 2022 (VS170)
