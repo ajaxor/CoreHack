@@ -13,6 +13,10 @@
 
 #define DATAPREFIX 4        /* see decl.h */
 
+#ifndef GEN_DIR
+#define GEN_DIR "gen"       /* default generated files directory */
+#endif
+
 #ifdef DLB
 /*
  * Data librarian.  Present a STDIO-like interface to NetHack while
