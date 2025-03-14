@@ -2048,31 +2048,9 @@ nhl_loadlua(lua_State *L, const char *fname)
     boolean using_dlb = FALSE;
     char gen_path[BUFSZ];
 
-    /* First try to open as a regular file in the gen directory relative to executable */
-    char exepath[BUFSZ];
-    char *last_slash;
-    
-    /* Get the executable path */
-    if (fqn_prefix[SYSCONFPREFIX]) {
-        Strcpy(exepath, fqn_prefix[SYSCONFPREFIX]);
-    } else {
-        exepath[0] = '\0';
-    }
-    
-    /* If we have a path, use it as base for gen directory */
-    if (exepath[0]) {
-        /* Remove filename part if present */
-        last_slash = strrchr(exepath, '/');
-        if (!last_slash)
-            last_slash = strrchr(exepath, '\\');
-        if (last_slash)
-            *(last_slash + 1) = '\0';
-            
-        Sprintf(gen_path, "%sgen/%s", exepath, fname);
-    } else {
-        /* Fallback to current directory if we can't get executable path */
-        Sprintf(gen_path, "gen/%s", fname);
-    }
+    /* First try to open as a regular file in the gen directory */
+    /* Try both current directory and a subdirectory */
+    Sprintf(gen_path, "gen/%s", fname);
     
     fp = fopen(gen_path, "r");
     
