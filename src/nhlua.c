@@ -2040,26 +2040,48 @@ nhl_loadlua(lua_State *L, const char *fname)
 {
 #define LOADCHUNKSIZE (1L << 13) /* 8K */
     boolean ret = TRUE;
-    dlb *fh;
+    dlb *fh = NULL;
+    FILE *fp = NULL;
     char *buf = (char *) 0, *bufin, *bufout, *p, *nl, *altfname;
     long buflen, ct, cnt;
     int llret;
+    boolean using_dlb = FALSE;
+    char gen_path[BUFSZ];
 
-    altfname = (char *) alloc(Strlen(fname) + 3); /* 3: '('...')\0' */
-    /* don't know whether 'fname' is inside a dlb container;
-       if we did, we could choose between "nhdat(<fname>)" and "<fname>"
-       but since we don't, compromise */
-    Sprintf(altfname, "(%s)", fname);
-    fh = dlb_fopen(fname, RDBMODE);
-    if (!fh) {
-        impossible("nhl_loadlua: Error opening %s", altfname);
-        ret = FALSE;
-        goto give_up;
+    /* First try to open as a regular file in the gen directory */
+    Sprintf(gen_path, "gen/%s", fname);
+    fp = fopen(gen_path, "r");
+    
+    if (!fp) {
+        /* If not found in gen directory, try as a DLB file */
+        altfname = (char *) alloc(Strlen(fname) + 3); /* 3: '('...')\0' */
+        /* don't know whether 'fname' is inside a dlb container;
+           if we did, we could choose between "nhdat(<fname>)" and "<fname>"
+           but since we don't, compromise */
+        Sprintf(altfname, "(%s)", fname);
+        fh = dlb_fopen(fname, RDBMODE);
+        if (!fh) {
+            impossible("nhl_loadlua: Error opening %s", altfname);
+            ret = FALSE;
+            goto give_up;
+        }
+        using_dlb = TRUE;
+    } else {
+        /* Using regular file, create altfname for error messages */
+        altfname = (char *) alloc(Strlen(gen_path) + 1);
+        Strcpy(altfname, gen_path);
     }
 
-    dlb_fseek(fh, 0L, SEEK_END);
-    buflen = dlb_ftell(fh);
-    dlb_fseek(fh, 0L, SEEK_SET);
+    /* Get file size */
+    if (using_dlb) {
+        dlb_fseek(fh, 0L, SEEK_END);
+        buflen = dlb_ftell(fh);
+        dlb_fseek(fh, 0L, SEEK_SET);
+    } else {
+        fseek(fp, 0L, SEEK_END);
+        buflen = ftell(fp);
+        fseek(fp, 0L, SEEK_SET);
+    }
 
     /* extra +1: room to add final '\n' if missing */
     buf = bufout = (char *) alloc(FITSint(buflen + 1 + 1));
@@ -2079,9 +2101,15 @@ nhl_loadlua(lua_State *L, const char *fname)
          * in use, and fseek(SEEK_END) only yields an upper bound on
          * the actual amount of data in that situation.]
          */
-        if ((cnt = dlb_fread(bufin, 1, min((int) buflen, LOADCHUNKSIZE), fh))
-            < 0L)
+        if (using_dlb) {
+            cnt = dlb_fread(bufin, 1, min((int) buflen, LOADCHUNKSIZE), fh);
+        } else {
+            cnt = fread(bufin, 1, min((int) buflen, LOADCHUNKSIZE), fp);
+        }
+        
+        if (cnt < 0L)
             break;
+            
         buflen -= cnt; /* set up for next iteration, if any */
         if (cnt == 0L) {
             *bufin = '\n'; /* very last line is unterminated? */
@@ -2120,7 +2148,12 @@ nhl_loadlua(lua_State *L, const char *fname)
         }
     }
     *bufout = '\0';
-    (void) dlb_fclose(fh);
+    
+    if (using_dlb) {
+        (void) dlb_fclose(fh);
+    } else {
+        fclose(fp);
+    }
 
     llret = luaL_loadbuffer(L, buf, strlen(buf), altfname);
     if (llret != LUA_OK) {
