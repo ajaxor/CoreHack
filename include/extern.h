@@ -88,6 +88,9 @@ extern unsigned FITSuint_(unsigned long long, const char *, int) NONNULLARG2;
  * interrupted only occasionally to pick up specific functions as needed. */
 #if !defined(MAKEDEFS_C) && !defined(MDLIB_C) && !defined(CPPREGEX_C)
 
+extern boolean test_mode;
+extern int test_level;
+
 /* ### allmain.c ### */
 
 extern void early_init(int, char *[]);

@@ -465,6 +465,11 @@ early_options(int argc, char *argv[])
 {
     int i;
 
+    test_mode = TRUE;
+    flags.randomall = 1;
+    test_level = 2;
+    strncpy(svp.plname, "wizard", sizeof(svp.plname) - 1);
+
     if (argc > 1) {
         if (argcheck(argc, argv, ARG_VERSION) == 2)
             nethack_exit(EXIT_SUCCESS);
@@ -583,6 +588,21 @@ early_options(int argc, char *argv[])
                 (void) strncpy(svp.plname, argv[0], sizeof(svp.plname) - 1);
             } else
                 raw_print("Player name expected after -u");
+            break;
+        case 't':
+            test_mode = TRUE;
+            flags.randomall = 1; /* Use random character */
+            if (argv[0][2]) {
+                test_level = atoi(&argv[0][2]);
+            } else if (argc > 1) {
+                argc--;
+                argv++;
+                test_level = atoi(argv[0]);
+            }
+            if (test_level <= 0) {
+                test_level = 1; /* default to level 1 */
+            }
+            strncpy(svp.plname, "wizard", sizeof(svp.plname) - 1);
             break;
         case 'g':
             if (argv[0][2]) {

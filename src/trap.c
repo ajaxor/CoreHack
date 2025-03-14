@@ -4306,9 +4306,7 @@ domagictrap(void)
                 You("suddenly yearn for %s.",
                     Hallucination
                         ? "Cleveland"
-                        : (In_quest(&u.uz) || at_dgn_entrance("The Quest"))
-                              ? "your nearby homeland"
-                              : "your distant homeland");
+                        : "your distant homeland");
             break;
         case 16:
             Your("pack shakes violently!");

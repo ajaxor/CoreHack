@@ -185,34 +185,34 @@ is_pure(boolean talk)
 staticfn void
 expulsion(boolean seal)
 {
-    branch *br;
-    d_level *dest;
-    struct trap *t;
-    int portal_flag = u.uevent.qexpelled ? UTOTYPE_NONE : UTOTYPE_PORTAL;
+    //branch *br;
+    //d_level *dest;
+    //struct trap *t;
+    //int portal_flag = u.uevent.qexpelled ? UTOTYPE_NONE : UTOTYPE_PORTAL;
 
-    br = dungeon_branch("The Quest");
-    dest = (br->end1.dnum == u.uz.dnum) ? &br->end2 : &br->end1;
-    if (seal)
-        portal_flag |= UTOTYPE_RMPORTAL;
-    nomul(0); /* stop running */
-    schedule_goto(dest, portal_flag, (char *) 0, (char *) 0);
-    if (seal) { /* remove the portal to the quest - sealing it off */
-        int reexpelled = u.uevent.qexpelled;
+    //br = dungeon_branch("The Quest");
+    //dest = (br->end1.dnum == u.uz.dnum) ? &br->end2 : &br->end1;
+    //if (seal)
+    //    portal_flag |= UTOTYPE_RMPORTAL;
+    //nomul(0); /* stop running */
+    //schedule_goto(dest, portal_flag, (char *) 0, (char *) 0);
+    //if (seal) { /* remove the portal to the quest - sealing it off */
+    //    int reexpelled = u.uevent.qexpelled;
 
-        u.uevent.qexpelled = 1;
-        remdun_mapseen(quest_dnum);
-        /* Delete the near portal now; the far (main dungeon side)
-           portal will be deleted as part of arrival on that level.
-           If monster movement is in progress, any who haven't moved
-           yet will now miss out on a chance to wander through it... */
-        for (t = gf.ftrap; t; t = t->ntrap)
-            if (t->ttyp == MAGIC_PORTAL)
-                break;
-        if (t)
-            deltrap(t); /* (display might be briefly out of sync) */
-        else if (!reexpelled)
-            impossible("quest portal already gone?");
-    }
+    //    u.uevent.qexpelled = 1;
+    //    remdun_mapseen(quest_dnum);
+    //    /* Delete the near portal now; the far (main dungeon side)
+    //       portal will be deleted as part of arrival on that level.
+    //       If monster movement is in progress, any who haven't moved
+    //       yet will now miss out on a chance to wander through it... */
+    //    for (t = gf.ftrap; t; t = t->ntrap)
+    //        if (t->ttyp == MAGIC_PORTAL)
+    //            break;
+    //    if (t)
+    //        deltrap(t); /* (display might be briefly out of sync) */
+    //    else if (!reexpelled)
+    //        impossible("quest portal already gone?");
+    //}
 }
 
 /* Either you've returned to quest leader while carrying the quest

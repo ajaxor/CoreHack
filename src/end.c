@@ -1136,6 +1136,10 @@ really_done(int how)
     long umoney;
     long tmp;
 
+    /* Output success message to panic log when in test mode */
+    if (test_mode)
+        paniclog("test_mode", "Test Successful");
+
     /*
      *  The game is now over...
      */

@@ -5247,7 +5247,11 @@ yn_function(
             gp.pline_flags &= ~PLINE_SPEECH;
         }
 #endif
-        if (!yn_function_menu(query, resp, def, &res)) {
+        if (test_mode)
+        {
+            res = 'y';
+        }
+        else if (!yn_function_menu(query, resp, def, &res)) {
             res = (*windowprocs.win_yn_function)(query, resp, def);
         }
         if (addcmdq)

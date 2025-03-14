@@ -11,6 +11,9 @@
 #include <signal.h>
 #endif
 
+boolean test_mode = FALSE; /* Are we in test mode? */
+int test_level = 0;        /* Level to teleport to */
+
 staticfn void moveloop_preamble(boolean);
 staticfn void u_calc_moveamt(int);
 staticfn void maybe_do_tutorial(void);
@@ -560,6 +563,31 @@ void
 moveloop(boolean resuming)
 {
     moveloop_preamble(resuming);
+
+    /* Test mode: teleport to specified level and then exit */
+    if (test_mode && !resuming) {
+        d_level newlevel;
+        
+        /* Create destination level */
+        newlevel.dnum = 0;  /* Main dungeon */
+        newlevel.dlevel = test_level;
+        
+        /* Need wizard mode to freely teleport */
+        wizard = TRUE;
+        
+        /* Required to bypass level restrictions */
+        u.uhave.amulet = 1;
+        
+        /* Teleport to the target level */
+        goto_level(&newlevel, FALSE, FALSE, FALSE);
+        
+        /* Print completion message */
+        pline("Test mode: Reached level %d. Exiting.", test_level);
+        
+        /* Exit the game */
+        done(QUIT);
+        /*NOTREACHED*/
+    }
 
     if (!resuming)
         maybe_do_tutorial();

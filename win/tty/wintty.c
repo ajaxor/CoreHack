@@ -1863,7 +1863,7 @@ tty_display_nhwindow(
         break;
     case NHW_MAP:
         end_glyphout();
-        if (blocking) {
+        if (blocking && !test_mode) {
             if (ttyDisplay->toplin != TOPLINE_EMPTY)
                 ttyDisplay->toplin = TOPLINE_NEED_MORE;
             tty_display_nhwindow(WIN_MESSAGE, TRUE);

@@ -67,30 +67,7 @@ dungeon = {
             base = -1
          }
       }
-   },
-    {
-        name = "The Quest",
-        bonetag = "Q",
-        base = 5,
-        range = 2,
-        levels = {
-            {
-            name = "x-strt",
-            base = 1,
-            range = 1
-            },
-            {
-            name = "x-loca",
-            bonetag = "L",
-            base = 3,
-            range = 1
-            },
-            {
-            name = "x-goal",
-            base = -1
-            },
-        }
-    },    
+   }, 
     {
         name = "The Elemental Planes",
         bonetag = "E",

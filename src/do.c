@@ -1934,21 +1934,21 @@ goto_level(
             record_achievement(ACH_BGRM);
         }
         /* main dungeon message from your quest leader */
-        if (!In_quest(&u.uz0) && at_dgn_entrance("The Quest")
-            && !(u.uevent.qcompleted || u.uevent.qexpelled
-                 || svq.quest_status.leader_is_dead)) {
-            /* [TODO: copy of same TODO below; if an achievement for
-               receiving quest call from leader gets added, that should
-               come after logging new level entry] */
-            if (!u.uevent.qcalled) {
-                u.uevent.qcalled = 1;
-                /* main "leader needs help" message */
-                com_pager("quest_portal");
-            } else { /* reminder message */
-                com_pager(Role_if(PM_ROGUE) ? "quest_portal_demand"
-                                            : "quest_portal_again");
-            }
-        }
+        //if (!In_quest(&u.uz0) && at_dgn_entrance("The Quest")
+        //    && !(u.uevent.qcompleted || u.uevent.qexpelled
+        //         || svq.quest_status.leader_is_dead)) {
+        //    /* [TODO: copy of same TODO below; if an achievement for
+        //       receiving quest call from leader gets added, that should
+        //       come after logging new level entry] */
+        //    if (!u.uevent.qcalled) {
+        //        u.uevent.qcalled = 1;
+        //        /* main "leader needs help" message */
+        //        com_pager("quest_portal");
+        //    } else { /* reminder message */
+        //        com_pager(Role_if(PM_ROGUE) ? "quest_portal_demand"
+        //                                    : "quest_portal_again");
+        //    }
+        //}
     }
 
     temperature_change_msg(prev_temperature);

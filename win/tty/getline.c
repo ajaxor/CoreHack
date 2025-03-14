@@ -228,7 +228,8 @@ void
 xwaitforspace(const char *s) /* chars allowed besides return */
 {
     int c, x = ttyDisplay ? (int) ttyDisplay->dismiss_more : '\n';
-
+    if (test_mode)
+        return;
     morc = 0;
     while (
 #ifdef HANGUPHANDLING

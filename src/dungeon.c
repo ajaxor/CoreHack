@@ -1167,7 +1167,7 @@ fixup_level_locations(void)
     /*
      *  I hate hardwiring these names. :-(
      */
-    quest_dnum = dname_to_dnum("The Quest");
+    quest_dnum = -1; //dname_to_dnum("The Quest");
     tutorial_dnum = dname_to_dnum("The Tutorial");
 
     /* one special fixup for dummy surface level */
@@ -2408,10 +2408,10 @@ print_dungeon(boolean bymenu, schar *rlev, xint16 *rdgn)
                     trap->tx, trap->ty, u.ux, u.uy);
 
         /* only report "no portal found" when actually expecting a portal */
-        else if (Is_earthlevel(&u.uz) || Is_waterlevel(&u.uz)
+        else /*if (Is_earthlevel(&u.uz) || Is_waterlevel(&u.uz)
                  || Is_firelevel(&u.uz) || Is_airlevel(&u.uz)
                  || Is_qstart(&u.uz) || at_dgn_entrance("The Quest")
-                 || Is_knox(&u.uz))
+                 || Is_knox(&u.uz))*/
             Strcpy(buf, "No portal found.");
 
         /* only give output if we found a portal or expected one and didn't */
@@ -3124,11 +3124,12 @@ recalc_mapseen(void)
     /* flags.castle retains previous value */
     mptr->flags.forgot = 0;
     /* flags.quest_summons disabled once quest finished */
-    mptr->flags.quest_summons = (at_dgn_entrance("The Quest")
-                                 && u.uevent.qcalled
-                                 && !(u.uevent.qcompleted
-                                      || u.uevent.qexpelled
-                                      || svq.quest_status.leader_is_dead));
+    mptr->flags.quest_summons = FALSE;
+    //(at_dgn_entrance("The Quest")
+    //                             && u.uevent.qcalled
+    //                             && !(u.uevent.qcompleted
+    //                                  || u.uevent.qexpelled
+    //                                  || svq.quest_status.leader_is_dead));
     mptr->flags.questing = (on_level(&u.uz, &qstart_level)
                             && svq.quest_status.got_quest);
     /* flags.msanctum, .valley, and .vibrating_square handled below */

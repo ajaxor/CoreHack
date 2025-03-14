@@ -22,6 +22,8 @@
 #include <unistd.h> /* for getcwd() prototype */
 #endif
 
+
+
 char *exepath(char *);
 char orgdir[PATHLEN]; /* also used in pcsys.c, amidos.c */
 
@@ -378,6 +380,11 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
        or holds a generic user name like "player" or "games" */
     plnamesuffix();
     set_playmode(); /* sets plname to "wizard" for wizard mode */
+	
+	/* If we're in test mode, we should ensure a name is set */
+    if (test_mode && !*svp.plname) {
+        Strcpy(svp.plname, "wizard");
+    }
 #if 0
     /* unlike Unix where the game might be invoked with a script
        which forces a particular character name for each player
@@ -510,6 +517,10 @@ process_options(int argc, char *argv[])
 {
     int i;
 
+    test_mode = TRUE;
+    flags.randomall = 1; /* Use random character */
+    test_level = 2; /* default to level 1 */
+
     /*
      * Process options.
      */
@@ -539,6 +550,22 @@ process_options(int argc, char *argv[])
             iflags.news = FALSE;
             break;
 #endif
+        /* Add test mode option */
+        case 't':
+            test_mode = TRUE;
+            flags.randomall = 1;  /* Use random character */
+            if (argv[0][2]) {
+                test_level = atoi(&argv[0][2]);
+            } else if (argc > 1) {
+                argc--;
+                argv++;
+                test_level = atoi(argv[0]);
+            }
+            if (test_level <= 0) {
+                test_level = 1; /* default to level 1 */
+            }
+            strncpy(svp.plname, "wizard", sizeof(svp.plname) - 1);
+            break;
         case 'u':
             if (argv[0][2])
                 (void) strncpy(svp.plname, argv[0] + 2, sizeof(svp.plname) - 1);
