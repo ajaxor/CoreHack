@@ -15,11 +15,35 @@ import re
 import time
 from pathlib import Path
 
+# Install required packages if needed
+try:
+    import win32gui
+    import win32con
+    import win32process
+    import win32api
+except ImportError:
+    print("pywin32 not found. Installing...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pywin32"])
+    import win32gui
+    import win32con
+    import win32process
+    import win32api
+
+try:
+    from pynput import keyboard
+except ImportError:
+    print("pynput not found. Installing...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pynput"])
+    from pynput import keyboard
+
+# Constants for Windows process creation
+CREATE_NEW_CONSOLE = 0x00000010  # Windows constant
+
 # Configuration
-# Try to find NetHack executable in common locations
 def find_nethack_executable():
     # Common locations on Windows
     windows_paths = [
+        r".\binary\Debug\x64\NetHack.exe",  # Add this path first based on your error message
         r".\nethack.exe",
         r".\build\nethack.exe",
         r".\binary\nethack.exe",
@@ -52,7 +76,7 @@ def find_nethack_executable():
     return "nethack"
 
 NETHACK_EXECUTABLE = find_nethack_executable()
-WIZARD_MODE_ARG = "-D"
+WIZARD_MODE_ARG = "-D -u wizard"
 MAX_LEVEL = 30
 START_LEVEL = 2
 VERBOSE = False  # Set to True for verbose output
@@ -90,37 +114,57 @@ OPTIONS=menu_headings:inverse
         f.write(nhrc_content)
     return nhrc_path
 
-def create_command_script():
-    """Create a script with commands to execute in NetHack"""
-    commands = [
-        "\n",  # Skip intro screen
-        "y\n",  # Confirm character
-        "#wizwish\n",  # Enter wish
-        "blessed greased +2 speed boots\n",  # Wish for speed boots for faster movement
-        "#wizwish\n",  # Enter another wish
-        "blessed wand of teleportation\n",  # For emergency escape
-        ".\n",  # Wait one turn on the first level
-        ".\n",  # Wait another turn
-        ".\n",  # Wait another turn
-        "#quit\n",  # Quit the game
-        "y\n",  # Confirm quit
-    ]
+# Store window handles found during enumeration
+found_windows = []
+
+def enum_windows_callback(hwnd, wildcard):
+    """Callback function for EnumWindows"""
+    # Get the window title
+    title = win32gui.GetWindowText(hwnd)
+    # Check if the window is visible and contains the wildcard
+    if win32gui.IsWindowVisible(hwnd) and wildcard.lower() in title.lower():
+        found_windows.append((hwnd, title))
+    return True
+
+def find_windows_by_title(wildcard):
+    """Find all windows with titles containing the given wildcard"""
+    global found_windows
+    found_windows = []
+    win32gui.EnumWindows(enum_windows_callback, wildcard)
+    return found_windows
+
+def find_window_by_pid(pid):
+    """Find window belonging to process ID"""
+    result = []
     
-    # Note: Level port commands are commented out for now
-    # We're just testing the first level
+    def callback(hwnd, lparam):
+        try:
+            _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
+            if found_pid == pid and win32gui.IsWindowVisible(hwnd):
+                result.append((hwnd, win32gui.GetWindowText(hwnd)))
+        except:
+            pass
+        return True
     
-    # Add quit command
-    return commands
-    
-    fd, cmd_path = tempfile.mkstemp(prefix="nethack_commands_", suffix=".txt")
-    with os.fdopen(fd, 'w') as f:
-        f.writelines(commands)
-    return cmd_path
+    win32gui.EnumWindows(callback, None)
+    return result
+
+def send_keystrokes(keys):
+    """Send keystrokes using pynput"""
+    kb = keyboard.Controller()
+    for key in keys:
+        if key == "\n" or key == "{ENTER}":
+            kb.press(keyboard.Key.enter)
+            kb.release(keyboard.Key.enter)
+        else:
+            kb.type(key)
+        time.sleep(0.1)
+    # Add a brief pause after sending commands
+    time.sleep(0.3)
 
 def run_nethack_test():
     """Run NetHack with the test commands and monitor output"""
     nhrc_path = create_nhrc_file()
-    cmd_path = create_command_script()
     
     try:
         # Set environment variables
@@ -131,50 +175,154 @@ def run_nethack_test():
         cmd = [NETHACK_EXECUTABLE]
         if WIZARD_MODE_ARG:
             cmd.append(WIZARD_MODE_ARG)
-            
-        print(f"Running command: {' '.join(cmd)}")
-        print("NetHack will now start. Please observe the game window.")
-        print("The script will automatically input commands.")
-        print("Press Ctrl+C in this window to abort if needed.")
         
-        # Run NetHack with commands piped to stdin but with visible terminal
-        with open(cmd_path, 'r') as cmd_file:
-            process = subprocess.Popen(
-                cmd,
-                stdin=subprocess.PIPE,
-                env=env,
-                text=True,
-                bufsize=1
-            )
+        cmd_str = " ".join(cmd)
+        print(f"Running command: {cmd_str}")
+        print("Starting NetHack in a visible window...")
+        
+        # Start the NetHack process with CREATE_NEW_CONSOLE flag to ensure it's visible
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = win32con.SW_SHOW  # Use win32con here
+        
+        process = subprocess.Popen(
+            cmd,
+            env=env, 
+            creationflags=CREATE_NEW_CONSOLE,  # Use the defined constant
+            startupinfo=startupinfo
+        )
+        
+        print(f"Started NetHack process with PID: {process.pid}")
+        
+        # Give time for the window to appear
+        time.sleep(3)
+        
+        # Try to find the window by different methods
+        window_info = None
+        
+        # Method 1: Find by PID
+        windows_by_pid = find_window_by_pid(process.pid)
+        if windows_by_pid:
+            print(f"Found {len(windows_by_pid)} windows by PID:")
+            for hwnd, title in windows_by_pid:
+                print(f"  Window Handle: {hwnd}, Title: '{title}'")
+            window_info = windows_by_pid[0]
+        
+        # Method 2: Find by window title containing "NetHack"
+        if not window_info:
+            print("Searching for windows with 'NetHack' in title...")
+            nethack_windows = find_windows_by_title("NetHack")
+            if nethack_windows:
+                print(f"Found {len(nethack_windows)} windows by title:")
+                for hwnd, title in nethack_windows:
+                    print(f"  Window Handle: {hwnd}, Title: '{title}'")
+                window_info = nethack_windows[0]
+        
+        # Method 3: Find console windows
+        if not window_info:
+            print("Searching for console windows...")
+            console_windows = find_windows_by_title("cmd") + find_windows_by_title("command")
+            if console_windows:
+                print(f"Found {len(console_windows)} potential console windows:")
+                for hwnd, title in console_windows:
+                    print(f"  Window Handle: {hwnd}, Title: '{title}'")
+                window_info = console_windows[0]
+        
+        # Method 4: List all visible windows as a last resort
+        if not window_info:
+            print("Listing all visible windows...")
+            all_windows = []
             
-            # Read commands and send them to NetHack with a delay
-            for cmd_line in cmd_file:
-                if VERBOSE:
-                    print(f"Sending command: {cmd_line.strip()}")
-                process.stdin.write(cmd_line)
-                process.stdin.flush()
-                time.sleep(0.5)  # Add delay between commands
+            def enum_all_callback(hwnd, _):
+                if win32gui.IsWindowVisible(hwnd):
+                    title = win32gui.GetWindowText(hwnd)
+                    if title:  # Only include windows with titles
+                        all_windows.append((hwnd, title))
+                return True
             
-            # Wait for process to complete
-            print("Waiting for NetHack to complete...")
-            process.wait()
+            win32gui.EnumWindows(enum_all_callback, None)
             
-            # Since we can't capture the output directly when using the visible terminal,
-            # we'll rely on the exit code and user observation
-            if process.returncode != 0:
-                print(f"NetHack exited with error code: {process.returncode}")
-                return [(1, f"Process exited with code {process.returncode}")]
+            print(f"Found {len(all_windows)} visible windows:")
+            for hwnd, title in all_windows:
+                print(f"  Window Handle: {hwnd}, Title: '{title}'")
             
-            # No errors detected programmatically
-            return []
+            # Try to find a likely candidate
+            for hwnd, title in all_windows:
+                if "nethack" in title.lower() or "game" in title.lower() or "console" in title.lower():
+                    window_info = (hwnd, title)
+                    break
+        
+        if not window_info:
+            raise Exception("Could not find a suitable window for NetHack")
+        
+        hwnd, title = window_info
+        print(f"Selected window - Handle: {hwnd}, Title: '{title}'")
+        
+        # Bring the window to the foreground
+        try:
+            win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(hwnd)
+            win32gui.SetFocus(hwnd)
+            print("Window activated and brought to foreground")
+        except Exception as e:
+            print(f"Warning: Could not activate window: {e}")
+        
+        # Give the window time to come to the foreground
+        time.sleep(2)
+        
+        # Define the commands to send
+        commands = [
+            "y",   # Confirm character
+            "y",   # Confirm character
+        ]
+        
+        # Add quit commands at the end
+        commands.extend([
+            "#quit",  # Quit the game
+            "y",      # Confirm quit
+        ])
+        
+        errors = []
+        
+        # Send each command
+        print("Sending commands to NetHack window...")
+        for cmd in commands:
+            if VERBOSE:
+                print(f"Sending: '{cmd}'")
             
-            return errors
-    
+            # Re-activate window before each command to ensure focus
+            try:
+                win32gui.SetForegroundWindow(hwnd)
+            except:
+                pass
+            
+            # Send the command
+            send_keystrokes(cmd)
+            
+            # Wait between commands
+            time.sleep(1)
+        
+        # Give the game time to finish
+        print("Waiting for NetHack to complete...")
+        time.sleep(3)
+        
+        # Make sure the process is terminated
+        try:
+            process.terminate()
+        except:
+            pass
+            
+        return errors
+        
+    except Exception as e:
+        print(f"Error during test: {e}")
+        import traceback
+        traceback.print_exc()
+        return [(0, f"Exception: {str(e)}")]
     finally:
         # Clean up temporary files
         try:
             os.remove(nhrc_path)
-            os.remove(cmd_path)
         except:
             pass
 
@@ -188,7 +336,6 @@ def main():
     
     print("Starting NetHack level port test...")
     print(f"Using NetHack executable: {NETHACK_EXECUTABLE}")
-    print("Testing only the first level for now")
     
     # Check if the executable exists
     if not os.path.exists(NETHACK_EXECUTABLE):
