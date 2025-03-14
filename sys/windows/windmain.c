@@ -465,9 +465,6 @@ early_options(int argc, char *argv[])
 {
     int i;
 
-    test_mode = TRUE;
-    flags.randomall = 1;
-    test_level = 2;
     strncpy(svp.plname, "wizard", sizeof(svp.plname) - 1);
 
     if (argc > 1) {
@@ -600,7 +597,7 @@ early_options(int argc, char *argv[])
                 test_level = atoi(argv[0]);
             }
             if (test_level <= 0) {
-                test_level = 1; /* default to level 1 */
+                test_level = 2; /* default to level 2 */
             }
             strncpy(svp.plname, "wizard", sizeof(svp.plname) - 1);
             break;
@@ -1517,6 +1514,9 @@ file_newer(const char *a_path, const char *b_path)
 int
 tty_self_recover_prompt(void)
 {
+    if (test_mode)
+        return -1;
+
     int c, ci, ct, pl, retval = 0;
     /* for saving/replacing functions, if needed */
     struct window_procs saved_procs = {0};

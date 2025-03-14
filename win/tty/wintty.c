@@ -3601,6 +3601,10 @@ void
 tty_wait_synch(void)
 {
     HUPSKIP();
+
+    if( test_mode )
+        return;
+
     /* we just need to make sure all windows are synch'd */
     if (!ttyDisplay || ttyDisplay->rawprint) {
         getret();

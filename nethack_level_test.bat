@@ -8,8 +8,9 @@ REM Returns success (0) if test passes, error code otherwise
 echo NetHack Level Test Script
 echo ========================
 
+cd binary\Debug\x64\
 REM Find NetHack executable
-set "NETHACK_EXE=.\binary\Debug\x64\NetHack.exe"
+set "NETHACK_EXE=.\NetHack.exe"
 if not exist "%NETHACK_EXE%" (
     set "NETHACK_EXE=.\nethack.exe"
 )
@@ -57,7 +58,7 @@ REM Run NetHack in test mode
 
 REM Check if paniclog exists
 if not exist "%PANICLOG%" (
-    echo ERROR: No paniclog was created.
+    echo ERROR: Nethack crashed while loading Level %LEVEL% 
     exit /b 1
 )
 
@@ -78,10 +79,10 @@ if %ERRORLEVEL% equ 0 (
         echo TEST PASSED: Level %LEVEL% generation successful.
         exit /b 0
     ) else (
-        echo TEST FAILED: Found "Test Successful" but paniclog contains multiple lines.
+        echo TEST FAILED: See log
         exit /b 1
     )
 ) else (
-    echo TEST FAILED: No "Test Successful" message found in paniclog.
+    echo TEST FAILED: See log
     exit /b 1
 )
