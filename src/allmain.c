@@ -13,6 +13,7 @@
 
 boolean test_mode = FALSE; /* Are we in test mode? */
 int test_level = 0;        /* Level to teleport to */
+char gen_path[BUFSZ] = { 0 };
 
 staticfn void moveloop_preamble(boolean);
 staticfn void u_calc_moveamt(int);
@@ -579,7 +580,9 @@ moveloop(boolean resuming)
         u.uhave.amulet = 1;
         
         /* Teleport to the target level */
-        goto_level(&newlevel, FALSE, FALSE, FALSE);
+        if (test_level != 1) {
+            goto_level(&newlevel, FALSE, FALSE, FALSE);
+        }
         
         /* Print completion message */
         pline("Test mode: Reached level %d. Exiting.", test_level);

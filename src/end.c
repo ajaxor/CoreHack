@@ -1138,7 +1138,7 @@ really_done(int how)
 
     /* Output success message to panic log when in test mode */
     if (test_mode)
-        paniclog("test_mode", "Test Successful");
+        paniclog("test_mode", "Test Complete");
 
     /*
      *  The game is now over...

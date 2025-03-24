@@ -866,7 +866,7 @@ mksobj_init(struct obj **obj, boolean artif)
     int mndx, tryct;
     struct obj *otmp = *obj;
     char let = objects[otmp->otyp].oc_class;
-    int artifact_chance = 20;
+    int artifact_chance = 25;
 
     switch (let) {
     case WEAPON_CLASS:
@@ -1047,6 +1047,8 @@ mksobj_init(struct obj **obj, boolean artif)
             otmp->spe = rn1(5, 4);
             break;
         }
+
+        artifact_chance = 35;
         break;
     case AMULET_CLASS:
         if (otmp->otyp == AMULET_OF_YENDOR)
@@ -1156,7 +1158,7 @@ mksobj_init(struct obj **obj, boolean artif)
         /*NOTREACHED*/
     }    
 
-    if (artif && !rn2(artifact_chance + (2 * nartifact_exist()))) {
+    if (artif && !rn2(artifact_chance - Luck + (2 * nartifact_exist()))) {
         /* mk_artifact() with otmp and A_NONE will never return NULL */
         otmp = mk_artifact(otmp, (aligntyp) A_NONE, 99, TRUE);
         *obj = otmp;

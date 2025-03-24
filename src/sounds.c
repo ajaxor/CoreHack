@@ -331,10 +331,10 @@ dosounds(void)
         if (get_iter_mons(temple_priest_sound))
             return;
     }
-    if (Is_oracle_level(&u.uz) && !rn2(400)) {
-        if (get_iter_mons(oracle_sound))
-            return;
-    }
+    //if (Is_oracle_level(&u.uz) && !rn2(400)) {
+    //    if (get_iter_mons(oracle_sound))
+    //        return;
+    //}
 }
 
 static const char *const h_sounds[] = {

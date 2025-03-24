@@ -1225,11 +1225,11 @@ prscore(int argc, char **argv)
 
     /* If the score list isn't after a game, we never went through
      * initialization. */
-    if (oracle_level.dlevel == 0) {
-        dlb_init();
-        init_dungeons();
-        init_done = TRUE;
-    }
+    //if (oracle_level.dlevel == 0) {
+    //    dlb_init();
+    //    init_dungeons();
+    //    init_done = TRUE;
+    //}
 
     /* to get here, argv[1] either starts with "-s" or is "--scores" without
        trailing stuff; for "-s<anything>" treat <anything> as separate arg */

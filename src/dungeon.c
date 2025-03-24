@@ -1168,7 +1168,7 @@ fixup_level_locations(void)
      *  I hate hardwiring these names. :-(
      */
     quest_dnum = -1; //dname_to_dnum("The Quest");
-    tutorial_dnum = dname_to_dnum("The Tutorial");
+    tutorial_dnum = -1; //dname_to_dnum("The Tutorial");
 
     /* one special fixup for dummy surface level */
     if ((x = find_level("dummy")) != 0) {

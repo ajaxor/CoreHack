@@ -601,6 +601,15 @@ early_options(int argc, char *argv[])
             }
             strncpy(svp.plname, "wizard", sizeof(svp.plname) - 1);
             break;
+        case 'T':
+            if (argv[0][2]) {
+                strncpy(gen_path, &argv[0][2], sizeof(gen_path) - 1);
+            } else if (argc > 1) {
+                argc--;
+                argv++;
+                strncpy(gen_path, argv[0], sizeof(gen_path) - 1);
+            }
+            break;
         case 'g':
             if (argv[0][2]) {
                 if ((i = str2gend(&argv[0][2])) >= 0)

@@ -90,6 +90,7 @@ extern unsigned FITSuint_(unsigned long long, const char *, int) NONNULLARG2;
 
 extern boolean test_mode;
 extern int test_level;
+extern char gen_path[BUFSZ];
 
 /* ### allmain.c ### */
 
@@ -141,6 +142,8 @@ extern void init_artifacts(void);
 extern void save_artifacts(NHFILE *);
 extern void restore_artifacts(NHFILE *);
 extern const char *artiname(int);
+extern short artiotype(int artinum);
+extern void convert_to_artifact(struct obj *object, int artinum);
 extern struct obj *mk_artifact(struct obj *, aligntyp, uchar, boolean);
 extern const char *artifact_name(const char *, short *, boolean) NONNULLARG1;
 extern boolean exist_artifact(int, const char *) NONNULLPTRS;

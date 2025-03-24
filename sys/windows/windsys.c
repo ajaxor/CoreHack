@@ -275,7 +275,7 @@ win32_abort(void)
     if (!WINDOWPORT(mswin) && !WINDOWPORT(safestartup))
         safe_routines();
 #endif
-    if (wizard) {
+    if (wizard && !test_mode) {
         raw_print("Execute debug breakpoint wizard?");
         if ((c = nhgetch()) == 'y' || c == 'Y')
             DebugBreak();

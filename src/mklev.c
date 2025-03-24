@@ -944,7 +944,7 @@ fill_ordinary_room(
                                : LEMBAS_WAFER,
                              pos.x, pos.y, TRUE, FALSE);
         } else if (u.uz.dnum == oracle_level.dnum
-                   && u.uz.dlevel < oracle_level.dlevel && rn2(3)) {
+                   && u.uz.dlevel < 4 && rn2(3)) {
             struct obj *otmp;
             int otyp, tryct = 0;
             boolean cursed;
@@ -1112,11 +1112,12 @@ makelevel(void)
     int room_threshold;
     s_level *slev;
     int i;
+    int room_type;
 
-    if (oracle_level.dlevel == 0) {
-        impossible("makelevel() called when dungeon not yet initialized.");
-        init_dungeons();
-    }
+    //if (oracle_level.dlevel == 0) {
+    //    impossible("makelevel() called when dungeon not yet initialized.");
+    //    init_dungeons();
+    //}
     oinit(); /* assign level dependent obj probabilities */
     clear_level_structures();
 
@@ -1198,34 +1199,45 @@ makelevel(void)
         /* make up to 1 special room, with type dependent on depth;
            note that mkroom doesn't guarantee a room gets created, and that
            this step only sets the room's rtype - it doesn't fill it yet. */
+        room_type = 0;
         if (wizard && nh_getenv("SHOPTYPE"))
             do_mkroom(SHOPBASE);
         else if (u_depth > 1 // && u_depth < depth(&medusa_level)
-                 && svn.nroom >= room_threshold && rn2(min(u_depth, 10)) < 3)
-            do_mkroom(SHOPBASE);
-        else if (u_depth > 4 && !rn2(6))
+                    && svn.nroom >= room_threshold
+                    && !rn2(min(max(abs(u_depth - 5), 1), 5)) )
+            if (!rn2(10)) {
+                // make a town
+                do_mkroom(TEMPLE);   
+                do_mkroom(SHOPBASE);
+                do_mkroom(SHOPBASE);
+                do_mkroom(SHOPBASE);         
+            } else {
+                do_mkroom(SHOPBASE);
+            }
+
+        if (u_depth > 4 && !rn2(6))
             do_mkroom(COURT);
-        else if (u_depth > 6 && !rn2(9)
-                 && !(svm.mvitals[PM_LEPRECHAUN].mvflags & G_GONE))
-            do_mkroom(LEPREHALL);
-        else if (u_depth > 8 && !rn2(7))
+        else if (u_depth > 6 && !rn2(7))
             do_mkroom(ZOO);
+        else if (u_depth > 8 && !rn2(9)
+                    && !(svm.mvitals[PM_LEPRECHAUN].mvflags & G_GONE))
+            do_mkroom(LEPREHALL);
         else if (u_depth > 10 && !rn2(5))
             do_mkroom(TEMPLE);
         else if (u_depth > 12 && !rn2(5)
-                 && !(svm.mvitals[PM_KILLER_BEE].mvflags & G_GONE))
+                    && !(svm.mvitals[PM_KILLER_BEE].mvflags & G_GONE))
             do_mkroom(BEEHIVE);
         else if (u_depth > 14 && !rn2(6))
             do_mkroom(MORGUE);
         else if (u_depth > 16 && !rn2(8) && antholemon())
             do_mkroom(ANTHOLE);
         else if (u_depth > 18 && !rn2(4)
-                 && !(svm.mvitals[PM_SOLDIER].mvflags & G_GONE))
+                    && !(svm.mvitals[PM_SOLDIER].mvflags & G_GONE))
             do_mkroom(BARRACKS);
         else if (u_depth > 20 && !rn2(6))
             do_mkroom(SWAMP);
         else if (u_depth > 21 && !rn2(8)
-                 && !(svm.mvitals[PM_COCKATRICE].mvflags & G_GONE))
+                    && !(svm.mvitals[PM_COCKATRICE].mvflags & G_GONE))
             do_mkroom(COCKNEST);
 
  skip0:
@@ -2476,10 +2488,10 @@ mk_knox_portal(coordxy x, coordxy y)
     if (source->dnum < svn.n_dgns || (rn2(3) && !wizard))
         return;
 
-    if (!(u.uz.dnum == oracle_level.dnum      /* in main dungeon */
+   // if (!(u.uz.dnum == oracle_level.dnum      /* in main dungeon */
           //&& !at_dgn_entrance("The Quest")    /* but not Quest's entry */
-          && (u_depth = depth(&u.uz)) > 10    /* beneath 10 */
-         ))// && u_depth < depth(&medusa_level))) /* and above Medusa */
+   //       && (u_depth = depth(&u.uz)) > 10    /* beneath 10 */
+   //      ))// && u_depth < depth(&medusa_level))) /* and above Medusa */
         return;
 
     /* Adjust source to be current level and re-insert branch. */

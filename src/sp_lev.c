@@ -13,7 +13,6 @@
 
 #include "hack.h"
 #include "sp_lev.h"
-
 extern void mkmap(lev_init *);
 
 staticfn void solidify_map(void);
@@ -118,6 +117,7 @@ staticfn int get_table_montype(lua_State *, int *);
 staticfn lua_Integer get_table_int_or_random(lua_State *, const char *, int);
 staticfn int get_table_buc(lua_State *);
 staticfn int get_table_objclass(lua_State *);
+staticfn int find_object_artifact_id(lua_State *L, const char *s);
 staticfn int find_objtype(lua_State *, const char *);
 staticfn int get_table_objtype(lua_State *);
 staticfn const char *get_mkroom_name(int) NONNULL;
@@ -2201,7 +2201,7 @@ create_object(object *o, struct mkroom *croom)
     if (!c) {
         otmp = mkobj_at(RANDOM_CLASS, x, y, !named);
     } else if (o->id != -1) {
-        otmp = mksobj_at(o->id, x, y, TRUE, !named);
+        otmp = mksobj_at(o->id, x, y, TRUE, !named && o->artifact_id == 0);
     } else {
         /*
          * The special levels are compiled with the default "text" object
@@ -2217,6 +2217,11 @@ create_object(object *o, struct mkroom *croom)
             otmp = mkgold(0L, x, y);
         else
             otmp = mkobj_at(oclass, x, y, !named);
+    }
+
+    if (o->artifact_id != 0)
+    {
+        convert_to_artifact(otmp, o->artifact_id);
     }
 
     if (o->spe != -127) /* That means NOT RANDOM! */
@@ -3150,14 +3155,19 @@ find_montype(
 staticfn int
 get_table_montype(lua_State *L, int *mgender)
 {
+    char error[BUFSZ];
     char *s = get_table_str_opt(L, "id", NULL);
     int ret = NON_PM;
 
     if (s) {
         ret = find_montype(L, s, mgender);
+        if (ret == NON_PM) {
+            (void) snprintf(error, sizeof(error), "Unknown monster id: %s", s);
+        }
         Free(s);
-        if (ret == NON_PM)
-            nhl_error(L, "Unknown monster id");
+        if (ret == NON_PM) {
+            nhl_error(L, error);
+        }
     }
     return ret;
 }
@@ -3446,6 +3456,33 @@ get_table_objclass(lua_State *L)
 }
 
 staticfn int
+find_objtype_by_otyp(lua_State *L, int otyp)
+{
+    int i;
+    
+    for (i = 0; i < NUM_OBJECTS; i++) {
+        if (i == otyp)
+            return i;
+    }
+    
+    nhl_error(L, "Invalid object type");
+    return STRANGE_OBJECT;
+}
+
+staticfn int
+find_object_artifact_id(lua_State *L, const char *s)
+{
+    if (s && *s) {
+        for (int i = 0; i < NROFARTIFACTS; i++) {
+            if (!strcmpi(s, artiname(i)))
+                return i;
+        }
+    }
+    return 0;
+}
+
+
+staticfn int
 find_objtype(lua_State *L, const char *s)
 {
     if (s && *s) {
@@ -3479,6 +3516,12 @@ find_objtype(lua_State *L, const char *s)
                     break;
                 }
             }
+        }
+
+        /* check for artifacts first */
+        for (i = 0; i < NROFARTIFACTS; i++) {
+            if (!strcmpi(s, artiname(i)))
+                return artiotype(i);
         }
 
         /* find by object name */
@@ -3546,6 +3589,7 @@ lspo_object(lua_State *L)
             0,       /* lit */
             0, 0, 0, 0, 0, /* eroded, locked, trapped, tknown, recharged */
             0, 0, 0, 0, /* invis, greased, broken, achievement */
+            0        /* artifact id */
     };
 #if 0
     int nparams = 0;
@@ -3577,6 +3621,7 @@ lspo_object(lua_State *L)
         } else {
             tmpobj.class = -1;
             tmpobj.id = find_objtype(L, paramstr);
+            tmpobj.artifact_id = find_object_artifact_id(L, paramstr);
         }
     } else if (argc == 2 && lua_type(L, 1) == LUA_TSTRING
                && lua_type(L, 2) == LUA_TTABLE) {
@@ -3590,6 +3635,7 @@ lspo_object(lua_State *L)
         } else {
             tmpobj.class = -1;
             tmpobj.id = find_objtype(L, paramstr);
+            tmpobj.artifact_id = find_object_artifact_id(L, paramstr);
         }
     } else if (argc == 3 && lua_type(L, 2) == LUA_TNUMBER
                && lua_type(L, 3) == LUA_TNUMBER) {
@@ -3604,6 +3650,7 @@ lspo_object(lua_State *L)
         } else {
             tmpobj.class = -1;
             tmpobj.id = find_objtype(L, paramstr);
+            tmpobj.artifact_id = find_object_artifact_id(L, paramstr);
         }
     } else {
         lcheck_param_table(L);

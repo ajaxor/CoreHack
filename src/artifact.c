@@ -135,6 +135,29 @@ artiname(int artinum)
     return artilist[artinum].name;
 }
 
+short 
+artiotype(int artinum)
+{
+    if (artinum <= 0 || artinum > NROFARTIFACTS)
+        return artilist[0].otyp;
+    return artilist[artinum].otyp;
+}
+
+void
+convert_to_artifact(struct obj *object, int artinum)
+{
+    if (artinum <= 0 || artinum > NROFARTIFACTS)
+        return artinum = 0;
+
+    /* prevent erosion from generating */
+    object->oeroded = object->oeroded2 = 0;
+    object = oname(object, artilist[artinum].name, ONAME_NO_FLAGS);
+    object->oartifact = artinum;
+
+    /* set existence and reason for creation bits */
+    artifact_origin(object, ONAME_RANDOM); /* 'random' is default */
+}
+
 /*
    Make an artifact.  If a specific alignment is specified, then an object of
    the appropriate alignment is created from scratch, or 0 is returned if

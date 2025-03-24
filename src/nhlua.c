@@ -2046,13 +2046,17 @@ nhl_loadlua(lua_State *L, const char *fname)
     long buflen, ct, cnt;
     int llret;
     boolean using_dlb = FALSE;
-    char gen_path[BUFSZ];
+    char lua_path[BUFSZ];
 
     /* First try to open as a regular file in the gen directory */
     /* Try both current directory and a subdirectory */
-    Sprintf(gen_path, "gen/%s", fname);
+    if (strlen(gen_path) > 1) {        
+        Sprintf(lua_path, "%s/%s", gen_path, fname);
+    } else {
+        Sprintf(lua_path, "gen/%s", fname);
+    }
     
-    fp = fopen(gen_path, "r");
+    fp = fopen(lua_path, "r");
     
     if (!fp) {
         /* If not found in gen directory, try as a DLB file */
@@ -2070,8 +2074,8 @@ nhl_loadlua(lua_State *L, const char *fname)
         using_dlb = TRUE;
     } else {
         /* Using regular file, create altfname for error messages */
-        altfname = (char *) alloc(Strlen(gen_path) + 1);
-        Strcpy(altfname, gen_path);
+        altfname = (char *) alloc(Strlen(lua_path) + 1);
+        Strcpy(altfname, lua_path);
     }
 
     /* Get file size */
@@ -2114,6 +2118,7 @@ nhl_loadlua(lua_State *L, const char *fname)
             
         buflen -= cnt; /* set up for next iteration, if any */
         if (cnt == 0L) {
+            buflen = 0;
             *bufin = '\n'; /* very last line is unterminated? */
             cnt = 1;
         }

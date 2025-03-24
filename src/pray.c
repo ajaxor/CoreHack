@@ -2150,8 +2150,8 @@ offer_corpse(struct obj *otmp, boolean highaltar, aligntyp altaralign)
     } else {
         int orig_luck, luck_increase;
 
-        if (bestow_artifact(value))
-            return;
+        //if (bestow_artifact(value))
+        //    return;
 
         orig_luck = u.uluck;
         luck_increase = (value * LUCKMAX) / (MAXVALUE * 2);

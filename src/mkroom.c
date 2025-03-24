@@ -276,6 +276,9 @@ fill_zoo(struct mkroom *sroom)
     coordxy tx = 0, ty = 0;
     int rmno = (int) ((sroom - svr.rooms) + ROOMOFFSET);
     coord mm;
+    struct permonst *zoo_monster = 0;
+    int zoo_class = RANDOM_CLASS;
+    struct obj *obj;
 
     /* Note: This doesn't check needfill; it assumes the caller has already
        done that. */
@@ -309,9 +312,11 @@ fill_zoo(struct mkroom *sroom)
             }
         }
         break;
-    case ZOO:
     case LEPREHALL:
         goldlim = 500 * level_difficulty();
+        break;
+
+    case ZOO:
         break;
     }
 
@@ -352,7 +357,7 @@ fill_zoo(struct mkroom *sroom)
                                              ? &mons[PM_COCKATRICE]
                                              : (type == ANTHOLE)
                                                  ? antholemon()
-                                                 : (struct permonst *) 0,
+                                                : (struct permonst *) zoo_monster,
                           sx, sy, MM_ASLEEP | MM_NOGRP);
             if (mon) {
                 mon->msleeping = 1;
@@ -363,6 +368,13 @@ fill_zoo(struct mkroom *sroom)
             }
             switch (type) {
             case ZOO:
+                zoo_monster = mon->data;
+                if (!rn2(6)) {
+                    obj = mkobj(zoo_class, TRUE);
+                    place_object(obj, sx, sy);
+                    zoo_class = obj->oclass;
+                }
+                break;
             case LEPREHALL:
                 if (sroom->doorct) {
                     int distval = dist2(sx, sy,

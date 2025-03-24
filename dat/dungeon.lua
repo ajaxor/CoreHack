@@ -28,41 +28,6 @@ dungeon = {
             alignment = "neutral"
          },
          {
-            name = "minetn",
-            bonetag = "T",
-            base = 8,
-            range = 0,
-            nlevels = 7,
-            flags = "town"
-         },
-         {
-           name = "minefill",
-           base = 9,
-           range = 0,
-         },
-         {
-           name = "minefill",
-           base = 10,
-           range = 0
-         },
-         {
-           name = "minefill",
-           base = 11,
-           range = 0
-         },
-         {
-            name = "orcus",
-            bonetag = "G",
-            base = 24,
-            range = 0
-         },
-         {
-            name = "juiblex",
-            bonetag = "J",
-            base = 28,
-            range = 0
-         },
-         {
             name = "castle",
             base = -1
          }
